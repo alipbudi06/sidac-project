@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('transaksi', function (Blueprint $table) {
@@ -16,19 +13,17 @@ return new class extends Migration
             $table->string('ID_User', 8);
             $table->string('ID_Pelanggan', 8);
             $table->dateTime('Tanggal');
-            $table->decimal('TotalHarga', 20, 0); // Sesuai ERD: FLOAT(20)
+            $table->decimal('TotalHarga', 20, 0);
             $table->enum('Metode_Pembayaran', ['QRIS', 'Cash']);
-            // $table->timestamps(); // ERD Anda tidak memilikinya
 
             // Relasi Foreign Key
             $table->foreign('ID_User')->references('ID_User')->on('users');
-            $table->foreign('ID_Pelanggan')->references('ID_Pelanggan')->on('pelanggan');
+            
+            // INI PERBAIKANNYA:
+            $table->foreign('ID_Pelanggan')->references('ID_Pelanggan')->on('pelanggan')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('transaksi');

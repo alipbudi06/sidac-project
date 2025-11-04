@@ -103,6 +103,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('transaksi.index') }}" class="{{ Request::is('transaksi*') ? 'active' : '' }}">
+                        <i class="fa fa-receipt"></i> Kelola Transaksi
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('user.index') }}" class="{{ Request::is('user*') ? 'active' : '' }}">
                         <i class="fa fa-user-shield"></i> Kelola User
                     </a>

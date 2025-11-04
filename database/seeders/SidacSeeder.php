@@ -58,12 +58,14 @@ class SidacSeeder extends Seeder
         $produks = [$p1, $p2, $p3, $p4, $p5];
 
         // 4. Buat Pelanggan
-        $c1 = Pelanggan::create(['ID_Pelanggan' => 'C001', 'Nama_Pelanggan' => 'Budi Santoso', 'Email_Pelanggan' => 'budi@mail.com', 'Kata_Sandi' => '123']);
-        $c2 = Pelanggan::create(['ID_Pelanggan' => 'C002', 'Nama_Pelanggan' => 'Citra Lestari', 'Email_Pelanggan' => 'citra@mail.com', 'Kata_Sandi' => '123']);
-        $c3 = Pelanggan::create(['ID_Pelanggan' => 'C003', 'Nama_Pelanggan' => 'David Kim', 'Email_Pelanggan' => 'david@mail.com', 'Kata_Sandi' => '123']);
-        $c4 = Pelanggan::create(['ID_Pelanggan' => 'C004', 'Nama_Pelanggan' => 'Elisa Putri', 'Email_Pelanggan' => 'elisa@mail.com', 'Kata_Sandi' => '123']);
-        $c5 = Pelanggan::create(['ID_Pelanggan' => 'C005', 'Nama_Pelanggan' => 'Fajar Nugroho', 'Email_Pelanggan' => 'fajar@mail.com', 'Kata_Sandi' => '123']);
+        $c1 = Pelanggan::create(['ID_Pelanggan' => 'C001', 'Nama_Pelanggan' => 'Budi Santoso', 'Email_Pelanggan' => 'budi@mail.com', 'Kata_Sandi' => '123', 'is_member' => true]);
+        $c2 = Pelanggan::create(['ID_Pelanggan' => 'C002', 'Nama_Pelanggan' => 'Citra Lestari', 'Email_Pelanggan' => 'citra@mail.com', 'Kata_Sandi' => '123', 'is_member' => true]);
+        $c3 = Pelanggan::create(['ID_Pelanggan' => 'C003', 'Nama_Pelanggan' => 'David Kim', 'Email_Pelanggan' => 'david@mail.com', 'Kata_Sandi' => '123', 'is_member' => true]);
+        $c4 = Pelanggan::create(['ID_Pelanggan' => 'C004', 'Nama_Pelanggan' => 'Elisa Putri', 'Email_Pelanggan' => 'elisa@mail.com', 'Kata_Sandi' => '123', 'is_member' => true]);
+        $c5 = Pelanggan::create(['ID_Pelanggan' => 'C005', 'Nama_Pelanggan' => 'Fajar Nugroho', 'Email_Pelanggan' => 'fajar@mail.com', 'Kata_Sandi' => '123', 'is_member' => true]);
         $pelanggans = [$c1, $c2, $c3, $c4, $c5];
+
+        
 
         // 5. Buat Transaksi & Detail Transaksi (Palsu)
         // Kita akan buat 50 transaksi palsu
