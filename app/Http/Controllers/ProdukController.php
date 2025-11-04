@@ -26,8 +26,18 @@ class ProdukController extends Controller
      */
     public function create()
     {
-        // Hanya tampilkan form tambah
-        return view('produk.create');
+            $lastProduct = Produk::orderBy('ID_Produk', 'desc')->first();
+
+    if (!$lastProduct) {
+        $newId = 'F001';
+    } else {
+        // Ambil angka dari ID terakhir (contoh: P012 → 12)
+        $lastNumber = intval(substr($lastProduct->ID_Produk, 1));
+        $newId = 'F' . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+    }
+
+    // Kirim ID otomatis ke view
+    return view('produk.create', compact('newId'));
     }
 
     /**
@@ -35,6 +45,14 @@ class ProdukController extends Controller
      */
     public function store(Request $request)
     {
+        $lastProduct = Produk::orderBy('ID_Produk', 'desc')->first();
+
+    if (!$lastProduct) {
+        $newId = 'F001';
+    } else {
+        $lastNumber = intval(substr($lastProduct->ID_Produk, 1));
+        $newId = 'F' . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+    }
         // 1. Validasi input
         $validatedData = $request->validate([
             'ID_Produk' => 'required|string|max:8|unique:produk',
@@ -42,11 +60,11 @@ class ProdukController extends Controller
             'Kategori' => 'required|string|max:20',
             'Harga' => 'required|numeric|min:0',
         ]);
+        
+        $validatedData['ID_Produk'] = $newId;
 
-        // 2. Jika validasi lolos, simpan ke database
         Produk::create($validatedData);
 
-        // 3. Redirect kembali ke halaman index dengan pesan sukses
         return redirect(route('produk.index'))->with('success', 'Produk baru berhasil ditambahkan!');
     }
 

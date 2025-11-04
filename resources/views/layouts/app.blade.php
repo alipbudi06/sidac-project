@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'SIDAC Admin')</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -200,5 +202,19 @@
             }
         });
     </script>
+    @if(session('success'))
+    <div 
+        x-data="{ show: true }" 
+        x-show="show" 
+        x-transition.duration.300ms
+        x-init="setTimeout(() => show = false, 3000)" 
+        class="fixed top-5 right-5 z-[9999]"
+    >
+        <div class="flex items-center justify-between bg-green-500 text-white font-medium px-4 py-3 rounded-lg shadow-lg w-80">
+            <span>{{ session('success') }}</span>
+            <button @click="show = false" class="text-white text-lg leading-none hover:text-gray-200">&times;</button>
+        </div>
+    </div>
+    @endif
 </body>
 </html>

@@ -26,7 +26,15 @@ class PelangganController extends Controller
      */
     public function create()
     {
-        return view('pelanggan.create');
+        $lastPelanggan = \App\Models\Pelanggan::orderBy('ID_Pelanggan', 'desc')->first();
+        if (!$lastPelanggan) {
+        $newId = 'C001';
+    } else {
+        // Ambil angka dari ID terakhir, misal C005 → 5
+        $num = (int) substr($lastPelanggan->ID_Pelanggan, 1);
+        $newId = 'C' . str_pad($num + 1, 3, '0', STR_PAD_LEFT);
+    }
+        return view('pelanggan.create', compact('newId'));
     }
 
     /**
@@ -34,6 +42,8 @@ class PelangganController extends Controller
      */
     public function store(Request $request)
     {
+        $lastPelanggan = \App\Models\Pelanggan::orderBy('ID_Pelanggan', 'desc')->first();
+        $newId = $lastPelanggan ? 'C' . str_pad(((int) substr($lastPelanggan->ID_Pelanggan, 1)) + 1, 3, '0', STR_PAD_LEFT) : 'C001';
         // 1. Validasi
         $validatedData = $request->validate([
             'ID_Pelanggan' => 'required|string|max:8|unique:pelanggan',
@@ -43,8 +53,10 @@ class PelangganController extends Controller
             // Frekuensi pembelian tidak perlu divalidasi, kita set default 0
         ]);
 
+        $validatedData['ID_Pelanggan'] = $newId;
+
         // 2. Simpan ke database
-        Pelanggan::create($validatedData);
+        \App\Models\Pelanggan::create($validatedData);
 
         // 3. Redirect
         return redirect(route('pelanggan.index'))->with('success', 'Pelanggan baru berhasil ditambahkan!');

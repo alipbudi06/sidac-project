@@ -28,10 +28,6 @@
     <form action="{{ route('user.store') }}" method="POST">
         @csrf
         <div>
-            <label for="ID_User">ID User (Contoh: M002)</label>
-            <input type="text" id="ID_User" name="ID_User" value="{{ old('ID_User') }}" required>
-        </div>
-        <div>
             <label for="Nama_User">Nama Lengkap</label>
             <input type="text" id="Nama_User" name="Nama_User" value="{{ old('Nama_User') }}" required>
         </div>

@@ -37,7 +37,6 @@ class UserController extends Controller
     {
         // 1. Validasi
         $validatedData = $request->validate([
-            'ID_User' => 'required|string|max:8|unique:users',
             'Nama_User' => 'required|string|max:50',
             'Username' => 'required|string|max:30|unique:users',
             'Email_User' => 'required|email|max:100|unique:users',
@@ -46,11 +45,33 @@ class UserController extends Controller
             'Nomor_HP' => 'nullable|string|max:12',
         ]);
 
+        $prefix = strtoupper(substr($validatedData['Role'], 0, 1)); // ambil huruf pertama dari role
+        // Kalau mau lebih spesifik:
+        if (strtolower($validatedData['Role']) === 'manajer operasional') {
+            $prefix = 'M';
+        } else {
+            $prefix = 'P';
+        }
+
+        // 3. Cari ID terakhir berdasarkan prefix tersebut
+        $lastUser = User::where('ID_User', 'like', $prefix . '%')
+            ->orderBy('ID_User', 'desc')
+            ->first();
+
+        if (!$lastUser) {
+            $newId = $prefix . '001';
+        } else {
+            $num = (int) substr($lastUser->ID_User, 1);
+            $newId = $prefix . str_pad($num + 1, 3, '0', STR_PAD_LEFT);
+        }
+
         // 2. HASH PASSWORD sebelum disimpan
         $validatedData['Password'] = Hash::make($request->Password);
 
+        $validatedData['ID_User'] = $newId;
+
         // 3. Simpan ke database
-        User::create($validatedData);
+         User::create($validatedData);
 
         // 4. Redirect
         return redirect(route('user.index'))->with('success', 'User baru berhasil ditambahkan!');

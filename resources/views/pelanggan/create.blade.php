@@ -28,8 +28,8 @@
     <form action="{{ route('pelanggan.store') }}" method="POST">
         @csrf
         <div>
-            <label for="ID_Pelanggan">ID Pelanggan (Contoh: C001)</label>
-            <input type="text" id="ID_Pelanggan" name="ID_Pelanggan" value="{{ old('ID_Pelanggan') }}" required>
+            <label for="ID_Pelanggan">ID Pelanggan</label>
+            <input type="text" id="ID_Pelanggan" name="ID_Pelanggan" value="{{ $newId }}" readonly>
         </div>
         <div>
             <label for="Nama_Pelanggan">Nama Pelanggan</label>
