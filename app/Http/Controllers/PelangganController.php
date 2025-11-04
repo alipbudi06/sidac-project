@@ -9,10 +9,17 @@ use App\Http\Controllers\Controller; // Pastikan ini di-import
 
 class PelangganController extends Controller
 {
+
     public function index()
     {
-        // PERBAIKAN: Hanya tampilkan yang 'is_member' = true
+        // PERBAIKAN:
+        // 1. Ambil pelanggan yang 'is_member' = true
+        // 2. Gunakan withCount('transaksi') untuk menghitung
+        //    transaksi terkait secara otomatis.
+        //    Ini akan membuat kolom baru bernama 'transaksi_count'
+        
         $pelanggans = Pelanggan::where('is_member', true)
+                        ->withCount('transaksi') 
                         ->orderBy('Nama_Pelanggan', 'asc')
                         ->get();
         

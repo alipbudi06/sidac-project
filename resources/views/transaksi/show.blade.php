@@ -48,27 +48,33 @@
     <table>
         <thead>
             <tr>
+                <th>ID Produk</th>
                 <th>Nama Produk</th>
-                <th>Jumlah</th>
-                <th>Sub Total</th>
+                <th class="text-right">Jumlah</th>
+                <th class="text-right">Diskon</th>
+                <th class="text-right">Service Charge</th>
+                <th class="text-right">Sub Total</th>
             </tr>
         </thead>
         <tbody>
             @forelse ($transaksi->detailTransaksi as $detail)
             <tr>
+                <td>{{ $detail->ID_Produk }}</td>
                 <td>{{ $detail->produk ? $detail->produk->Nama_Produk : 'Produk Dihapus' }}</td>
                 <td class="text-right">{{ $detail->Jumlah_Produk }}</td>
+                <td class="text-right">Rp {{ number_format($detail->Diskon ?? 0, 0, ',', '.') }}</td>
+                <td class="text-right">Rp {{ number_format($detail->Service_Charge ?? 0, 0, ',', '.') }}</td>
                 <td class="text-right">Rp {{ number_format($detail->SubTotal ?? 0, 0, ',', '.') }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="3" style="text-align: center;">Tidak ada detail produk untuk transaksi ini.</td>
+                <td colspan="6" style="text-align: center;">Tidak ada detail produk for transaksi ini.</td>
             </tr>
             @endforelse
         </tbody>
         <tfoot>
             <tr class="total-row">
-                <td colspan="2" class="text-right">Total Keseluruhan</td>
+                <td colspan="5" class="text-right">Total Keseluruhan</td>
                 <td class="text-right">Rp {{ number_format($transaksi->TotalHarga ?? 0, 0, ',', '.') }}</td>
             </tr>
         </tfoot>
