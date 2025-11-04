@@ -24,8 +24,8 @@
     .sub-header h1 { margin: 0; font-size: 1.5em; }
     .sub-header p { margin: 0; color: #555; }
     .btn-export {
-        background-color: #fd7e14; /* Oranye */
-        color: white;
+        background: linear-gradient(135deg, #e65c00, #ff9900);
+        color: #fff;
         padding: 10px 15px;
         border-radius: 6px;
         text-decoration: none;
@@ -50,9 +50,9 @@
     }
     .filter-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        align-items: flex-end;
+        grid-template-columns: repeat(4, 1fr); /* 4 kolom sama besar */
+        gap: 20px;
+        align-items: end; /* tombol sejajar bawah input */
     }
     .filter-group { display: flex; flex-direction: column; }
     .filter-group label {
@@ -61,14 +61,22 @@
         margin-bottom: 5px;
     }
     .filter-group input, .filter-group select {
-        padding: 8px;
+        padding: 8px 30px 8px 8px;
         border: 1px solid #ccc;
         border-radius: 4px;
         font-size: 0.9em;
+        box-sizing: border-box;
+    }
+    .filter-group .input-icon {
+        position: absolute;
+        right: 10px;
+        top: 30px; /* Menyesuaikan posisi vertikal agar sejajar dengan input */
+        color: #888;
+        pointer-events: none; /* Agar klik tetap tembus ke input */
     }
     .btn-filter {
-        background-color: #0d6efd;
-        color: white;
+        background: linear-gradient(135deg, #0048b5, #007bff);
+        color: #fff;
         border: none;
         padding: 10px;
         border-radius: 6px;
@@ -81,6 +89,8 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 20px;
+        margin-top: 20px;
+        margin-bottom: 20px;
     }
     .stat-card {
         display: flex;
@@ -90,8 +100,8 @@
         border-radius: 8px;
         color: white;
     }
-    .stat-card-blue { background-color: #0d6efd; }
-    .stat-card-orange { background-color: #fd7e14; }
+    .stat-card-blue { background: linear-gradient(135deg, #0048b5, #007bff); color: #fff; }
+    .stat-card-orange { background: linear-gradient(135deg, #e65c00, #ff9900); color: #fff; }
     .stat-card .icon { font-size: 2em; opacity: 0.7; }
     .stat-card h3 { margin: 0; font-size: 1.1em; font-weight: 500; }
     .stat-card p { margin: 5px 0 0 0; font-size: 1.5em; font-weight: bold; }
@@ -141,32 +151,35 @@
     @endif
 </section>
 
-<section class="card filter-card">
+<section class="filter-card card">
     <h2>Filter Dashboard</h2>
     <form method="GET" action="{{ route('dashboard') }}">
         <div class="filter-grid">
-             <div class="filter-group">
-                 <label for="tgl_mulai">Tanggal Mulai</label>
-                 <input type="date" id="tgl_mulai" name="tgl_mulai" value="{{ request('tgl_mulai') }}">
-         </div>
-         <div class="filter-group">
-                 <label for="tgl_selesai">Tanggal Selesai</label>
-                 <input type="date" id="tgl_selesai" name="tgl_selesai" value="{{ request('tgl_selesai') }}">
-         </div>
-             </div>
-             <div class="filter-group">
-                 <label for="produk">Produk</label>
-                 <select id="produk" name="produk">
-                     <option value="">Semua Produk</option>
-                     <option value="kopi">Kopi</option>
-                 </select>
-             </div>
-             <div class="filter-group">
-                 <button type="submit" class="btn-filter">Terapkan Filter</button>
-             </div>
-         </div>
+            <div class="filter-group">
+                <label for="tgl_mulai">Tanggal Mulai</label>
+                <input type="date" id="tgl_mulai" name="tgl_mulai" value="{{ request('tgl_mulai') }}">
+            </div>
+
+            <div class="filter-group">
+                <label for="tgl_selesai">Tanggal Selesai</label>
+                <input type="date" id="tgl_selesai" name="tgl_selesai" value="{{ request('tgl_selesai') }}">
+            </div>
+
+            <div class="filter-group">
+                <label for="produk">Produk</label>
+                <select id="produk" name="produk">
+                    <option value="">Semua Produk</option>
+                    <option value="kopi" {{ request('produk') == 'kopi' ? 'selected' : '' }}>Kopi</option>
+                </select>
+            </div>
+
+            <div class="filter-group" style="align-self: end;">
+                <button type="submit" class="btn-filter">Terapkan Filter</button>
+            </div>
+        </div>
     </form>
 </section>
+
 
 <section class="stats-grid">
     <div class="stat-card stat-card-blue">

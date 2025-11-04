@@ -2,126 +2,105 @@
 
 namespace App\Http\Controllers;
 
-// 1. Import Model User dan Hash
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+// use Illuminate\Support\Facades\Gate;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource. (READ)
-     */
     public function index()
     {
-        // Ambil semua user
+        // Gate::authorize('is-manajer');
         $users = User::all();
-        
-        // Kirim ke view
         return view('user.index', ['users' => $users]);
     }
 
-    /**
-     * Show the form for creating a new resource. (CREATE - Form)
-     */
     public function create()
     {
-        return view('user.create');
+        // Gate::authorize('is-manajer');
+        
+        // Logika ID Otomatis
+        $lastUser = \App\Models\User::orderBy('ID_User', 'desc')->first();
+        if (!$lastUser) {
+            $newId = 'U001'; // Asumsi awalan 'U'
+        } else {
+             $prefix = $lastUser->ID_User[0]; // Ambil awalan (M atau P)
+             $num = (int) substr($lastUser->ID_User, 1);
+             $newId = $prefix . str_pad($num + 1, 3, '0', STR_PAD_LEFT);
+        }
+        
+        return view('user.create', compact('newId'));
     }
 
-    /**
-     * Store a newly created resource in storage. (CREATE - Process)
-     */
     public function store(Request $request)
     {
-        // 1. Validasi
+        // Gate::authorize('is-manajer');
+        
+        // Logika ID Otomatis
+        $lastUser = \App\Models\User::orderBy('ID_User', 'desc')->first();
+        if (!$lastUser) {
+            $newId = 'U001'; 
+        } else {
+             $prefix = $request->Role == 'Manajer Operasional' ? 'M' : 'P';
+             $num = (int) substr($lastUser->ID_User, 1);
+             $newId = $prefix . str_pad($num + 1, 3, '0', STR_PAD_LEFT);
+        }
+
         $validatedData = $request->validate([
-            'ID_User' => 'required|string|max:8|unique:users',
+            // 'ID_User' => 'required|string|max:8|unique:users', // Dihapus
             'Nama_User' => 'required|string|max:50',
             'Username' => 'required|string|max:30|unique:users',
             'Email_User' => 'required|email|max:100|unique:users',
-            'Password' => 'required|string|min:5', // Pastikan password diisi
+            'Password' => 'required|string|min:5',
             'Role' => 'required|string',
             'Nomor_HP' => 'nullable|string|max:12',
         ]);
-
-        // 2. HASH PASSWORD sebelum disimpan
+        
+        $validatedData['ID_User'] = $newId; // Tambahkan ID baru
         $validatedData['Password'] = Hash::make($request->Password);
-
-        // 3. Simpan ke database
         User::create($validatedData);
-
-        // 4. Redirect
         return redirect(route('user.index'))->with('success', 'User baru berhasil ditambahkan!');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        // Tidak kita gunakan
+        // Gate::authorize('is-manajer');
     }
 
-    /**
-     * Show the form for editing the specified resource. (UPDATE - Form)
-     */
     public function edit(string $id)
     {
+        // Gate::authorize('is-manajer');
         $user = User::findOrFail($id);
         return view('user.edit', ['user' => $user]);
     }
 
-    /**
-     * Update the specified resource in storage. (UPDATE - Process)
-     */
     public function update(Request $request, string $id)
     {
-        // 1. Validasi
+        // Gate::authorize('is-manajer');
         $validatedData = $request->validate([
             'Nama_User' => 'required|string|max:50',
-            // Pastikan email unik, TAPI abaikan email milik user $id ini
-            'Email_User' => [
-                'required',
-                'email',
-                'max:100',
-                Rule::unique('users')->ignore($id, 'ID_User'),
-            ],
-            'Password' => 'nullable|string|min:5', // Password boleh kosong
+            'Email_User' => ['required', 'email', 'max:100', Rule::unique('users')->ignore($id, 'ID_User')],
+            'Password' => 'nullable|string|min:5',
             'Role' => 'required|string',
             'Nomor_HP' => 'nullable|string|max:12',
         ]);
-
-        // 2. Cek apakah password diisi
         if ($request->filled('Password')) {
-            // Jika diisi, hash password baru
             $validatedData['Password'] = Hash::make($request->Password);
         } else {
-            // Jika kosong, hapus dari array agar password lama tidak ditimpa
             unset($validatedData['Password']);
         }
-
-        // 3. Cari dan update
         $user = User::findOrFail($id);
         $user->update($validatedData);
-
-        // 4. Redirect
         return redirect(route('user.index'))->with('success', 'Data user berhasil diperbarui!');
     }
 
-    /**
-     * Remove the specified resource from storage. (DELETE)
-     */
     public function destroy(string $id)
     {
-        // 1. Cari
+        // Gate::authorize('is-manajer');
         $user = User::findOrFail($id);
-        
-        // 2. Hapus
         $user->delete();
-
-        // 3. Redirect
         return redirect(route('user.index'))->with('success', 'User berhasil dihapus!');
     }
 }

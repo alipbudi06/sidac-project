@@ -3,17 +3,89 @@
 @section('title', 'Kelola User')
 
 @section('content')
-    <style>
-        /* CSS ini spesifik hanya untuk halaman ini */
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .btn { padding: 5px 10px; border-radius: 4px; text-decoration: none; display: inline-block; }
-        .btn-tambah { background-color: #28a745; color: white; }
-        .btn-edit { background-color: #ffc107; color: black; }
-        .btn-hapus { background-color: #dc3545; color: white; border: none; cursor: pointer; }
-        .header { display: flex; justify-content: space-between; align-items: center; }
-    </style>
+<style>
+    /* --- STYLE HALAMAN PELANGGAN --- */
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: white;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    th {
+        background-color: #007bff;
+        color: white;
+        text-align: center;
+        padding: 12px 14px;
+        font-weight: 600;
+    }
+
+    td {
+        padding: 10px 14px;
+        border-bottom: 1px solid #eee;
+        text-align: center;
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    tr:hover {
+        background-color: #f4f8ff;
+    }
+
+    /* --- TOMBOL STYLE --- */
+    .btn {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin: 2px 4px; /* kasih jarak halus antar tombol */
+    }
+
+    .btn-tambah {
+        background-color: #28a745;
+        color: white;
+        padding: 10px 18px; /* lebih besar dari tombol lain */
+        font-size: 0.95em;
+    }
+
+    /* Tombol Edit — sedang */
+    .btn-edit {
+        background-color: #ffc107;
+        color: black;
+        padding: 10px 17px;
+    }
+
+    /* Tombol Hapus — sedikit lebih kecil dan ringkas */
+    .btn-hapus {
+        background-color: #dc3545;
+        color: white;
+        padding: 10px 17px;
+    }
+
+    /* Efek hover semua tombol */
+    .btn:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+</style>
     
     <div class="header">
         <h1>Kelola Data User</h1>
