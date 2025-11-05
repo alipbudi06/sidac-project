@@ -98,7 +98,9 @@
 
 <div class="header">
     <h1>Kelola Data Produk</h1>
-    <a href="{{ route('produk.create') }}" class="btn btn-tambah">Tambah Produk Baru</a>
+    @if (Auth::check() && Auth::user()->Role === 'Manajer Operasional')
+        <a href="{{ route('produk.create') }}" class="btn btn-tambah">Tambah Produk Baru</a>
+    @endif
 </div>
 
 @if (session('success'))
@@ -125,12 +127,14 @@
                 <td>{{ $produk->Kategori }}</td>
                 <td>Rp {{ number_format($produk->Harga, 0, ',', '.') }}</td>
                 <td>
-                    <a href="{{ route('produk.edit', $produk->ID_Produk) }}" class="btn btn-edit">Edit</a>
-                    <form action="{{ route('produk.destroy', $produk->ID_Produk) }}" method="POST" style="display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-hapus" onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?')">Hapus</button>
-                    </form>
+                    @if (Auth::check() && Auth::user()->Role === 'Manajer Operasional')
+                        <a href="{{ route('produk.edit', $produk->ID_Produk) }}" class="btn btn-edit">Edit</a>
+                        <form action="{{ route('produk.destroy', $produk->ID_Produk) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-hapus" onclick="return confirm('Apakah Anda yakin?')">Hapus</button>
+                        </form>
+                    @endif
                 </td>
             </tr>
         @endforeach

@@ -167,11 +167,13 @@
                         <i class="fa fa-receipt"></i> Kelola Transaksi
                     </a>
                 </li>
-                <li>
-                    <a href="{{ route('user.index') }}" class="{{ Request::is('user*') ? 'active' : '' }}">
-                        <i class="fa fa-user-shield"></i> <span>Kelola User</span>
-                    </a>
-                </li>
+                @if (auth()->check() && auth()->user()->Role === 'Manajer Operasional')
+                    <li>
+                        <a href="{{ route('user.index') }}" class="{{ Request::is('user*') ? 'active' : '' }}">
+                            <i class="fa fa-user-shield"></i> <span>Kelola User</span>
+                        </a>
+                    </li>
+                @endif
             </ul>
 
             <div class="sidebar-footer">

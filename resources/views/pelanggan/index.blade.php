@@ -16,7 +16,9 @@
     
     <div class="header">
         <h1>Kelola Data Pelanggan</h1>
-        <a href="{{ route('pelanggan.create') }}" class="btn btn-tambah">Tambah Pelanggan Baru</a>
+        @if (Auth::check() && Auth::user()->Role === 'Manajer Operasional')
+            <a href="{{ route('pelanggan.create') }}" class="btn btn-tambah">Tambah Pelanggan Baru</a>
+        @endif
     </div>
     
     @if (session('success'))
@@ -47,12 +49,14 @@
                 <td>{{ $pelanggan->transaksi_count }}</td>
                 
                 <td>
-                    <a href="{{ route('pelanggan.edit', $pelanggan->ID_Pelanggan) }}" class="btn btn-edit">Edit</a>
-                    <form action="{{ route('pelanggan.destroy', $pelanggan->ID_Pelanggan) }}" method="POST" style="display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-hapus" onclick="return confirm('Apakah Anda yakin?')">Hapus</button>
-                    </form>
+                    @if (Auth::check() && Auth::user()->Role === 'Manajer Operasional')
+                        <a href="{{ route('pelanggan.edit', $pelanggan->ID_Pelanggan) }}" class="btn btn-edit">Edit</a>
+                        <form action="{{ route('pelanggan.destroy', $pelanggan->ID_Pelanggan) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-hapus" onclick="return confirm('Apakah Anda yakin?')">Hapus</button>
+                        </form>
+                    @endif
                 </td>
             </tr>
             @endforeach
