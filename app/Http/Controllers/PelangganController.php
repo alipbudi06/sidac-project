@@ -5,65 +5,51 @@ namespace App\Http\Controllers;
 use App\Models\Pelanggan;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use App\Http\Controllers\Controller; // Pastikan ini di-import
+use App\Http\Controllers\Controller; 
 
 class PelangganController extends Controller
 {
-
-    public function index()
+    public function index(Request $request)
     {
-        // PERBAIKAN:
-        // 1. Ambil pelanggan yang 'is_member' = true
-        // 2. Gunakan withCount('transaksi') untuk menghitung
-        //    transaksi terkait secara otomatis.
-        //    Ini akan membuat kolom baru bernama 'transaksi_count'
+        // Membaca dari kolom DB (BUKAN withCount)
+        $search = $request->query('search');
+        $query = Pelanggan::where('is_member', true); 
         
-        $pelanggans = Pelanggan::where('is_member', true)
-                        ->withCount('transaksi') 
-                        ->orderBy('Nama_Pelanggan', 'asc')
-                        ->get();
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('ID_Pelanggan', 'LIKE', "%{$search}%")
+                  ->orWhere('Nama_Pelanggan', 'LIKE', "%{$search}%")
+                  ->orWhere('Email_Pelanggan', 'LIKE', "%{$search}%");
+            });
+        }
+        $pelanggans = $query->orderBy('Nama_Pelanggan', 'asc')->get();
         
-        return view('pelanggan.index', ['pelanggans' => $pelanggans]);
+        return view('pelanggan.index', [
+            'pelanggans' => $pelanggans,
+            'search' => $search
+        ]);
     }
-
+    
     public function create()
     {
-        // Fungsi create() dari teman Anda (ini sudah benar)
         $lastPelanggan = \App\Models\Pelanggan::orderBy('ID_Pelanggan', 'desc')->first();
-        if (!$lastPelanggan) {
-            $newId = 'C001';
-        } else {
-            $num = (int) substr($lastPelanggan->ID_Pelanggan, 1);
-            $newId = 'C' . str_pad($num + 1, 3, '0', STR_PAD_LEFT);
-        }
+        $newId = !$lastPelanggan ? 'C001' : 'C' . str_pad(((int) substr($lastPelanggan->ID_Pelanggan, 1)) + 1, 3, '0', STR_PAD_LEFT);
         return view('pelanggan.create', compact('newId'));
     }
 
-    /**
-     * Ini adalah FUNGSI STORE() YANG SUDAH DIGABUNG (MERGED)
-     */
     public function store(Request $request)
     {
-        // 1. Ambil Logika ID Otomatis (dari Teman Anda)
         $lastPelanggan = \App\Models\Pelanggan::orderBy('ID_Pelanggan', 'desc')->first();
-        $newId = $lastPelanggan ? 'C' . str_pad(((int) substr($lastPelanggan->ID_Pelanggan, 1)) + 1, 3, '0', STR_PAD_LEFT) : 'C001';
-
-        // 2. Validasi Data (HAPUS validasi ID_Pelanggan, karena sudah otomatis)
+        $newId = !$lastPelanggan ? 'C001' : 'C' . str_pad(((int) substr($lastPelanggan->ID_Pelanggan, 1)) + 1, 3, '0', STR_PAD_LEFT);
         $validatedData = $request->validate([
             'Nama_Pelanggan' => 'required|string|max:20',
             'Email_Pelanggan' => 'nullable|email|max:100|unique:pelanggan,Email_Pelanggan',
             'Kata_Sandi' => 'required|string|max:13',
         ]);
-
-        // 3. Gabungkan SEMUA data
-        $validatedData['ID_Pelanggan'] = $newId; // (dari Teman Anda)
-        $validatedData['is_member'] = true; // (dari Anda)
-        $validatedData['Frekuensi_Pembelian'] = 0; // (dari Anda)
-
-        // 4. Simpan ke database
+        $validatedData['ID_Pelanggan'] = $newId; 
+        $validatedData['is_member'] = true; 
+        $validatedData['Frekuensi_Pembelian'] = 0; 
         Pelanggan::create($validatedData);
-
-        // 5. Redirect
         return redirect(route('pelanggan.index'))->with('success', 'Member baru berhasil ditambahkan!');
     }
 
@@ -78,15 +64,16 @@ class PelangganController extends Controller
 
     public function update(Request $request, string $id)
     {
+        // Hapus 'Frekuensi_Pembelian' dari validasi
         $validatedData = $request->validate([
             'Nama_Pelanggan' => 'required|string|max:20',
             'Email_Pelanggan' => 'nullable|email|max:100|unique:pelanggan,Email_Pelanggan,' . $id . ',ID_Pelanggan',
             'Kata_Sandi' => 'required|string|max:13',
-            'Frekuensi_Pembelian' => 'required|integer|min:0',
+            // 'Frekuensi_Pembelian' => ... (DIHAPUS)
         ]);
         
         $pelanggan = Pelanggan::findOrFail($id);
-        $pelanggan->update($validatedData);
+        $pelanggan->update($validatedData); // Hanya update data ini
         return redirect(route('pelanggan.index'))->with('success', 'Data member berhasil diperbarui!');
     }
 

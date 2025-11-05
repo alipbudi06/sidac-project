@@ -67,46 +67,32 @@ class SidacSeeder extends Seeder
 
         
 
-        // 5. Buat Transaksi & Detail Transaksi (Palsu)
-        // Kita akan buat 50 transaksi palsu
+        // 5. Buat 50 Transaksi & Detail Transaksi Palsu
         for ($i = 1; $i <= 50; $i++) {
+            // ... (logika for loop Anda sudah benar) ...
             $total_transaksi = 0;
             $random_user = $users[array_rand($users)];
             $random_pelanggan = $pelanggans[array_rand($pelanggans)];
-            
-            // Buat tanggal acak dalam 3 bulan terakhir
             $random_timestamp = time() - rand(0, 90 * 24 * 60 * 60); 
-
-            // Buat Transaksi
-            $transaksi = Transaksi::create([
-                'ID_Transaksi' => 'TRX' . str_pad($i, 4, '0', STR_PAD_LEFT),
-                'ID_User' => $random_user->ID_User,
-                'ID_Pelanggan' => $random_pelanggan->ID_Pelanggan,
-                'Tanggal' => date('Y-m-d H:i:s', $random_timestamp),
-                'TotalHarga' => 0, // Akan di-update nanti
-                'Metode_Pembayaran' => (rand(0, 1) ? 'QRIS' : 'Cash')
-            ]);
-
-            // Buat 1 sampai 3 item per transaksi
+            $transaksi = Transaksi::create(['ID_Transaksi' => 'TRX' . str_pad($i, 4, '0', STR_PAD_LEFT), 'ID_User' => $random_user->ID_User, 'ID_Pelanggan' => $random_pelanggan->ID_Pelanggan, 'Tanggal' => date('Y-m-d H:i:s', $random_timestamp), 'TotalHarga' => 0, 'Metode_Pembayaran' => (rand(0, 1) ? 'QRIS' : 'Cash')]);
             $item_count = rand(1, 3);
             for ($j = 0; $j < $item_count; $j++) {
                 $random_produk = $produks[array_rand($produks)];
                 $jumlah = rand(1, 2);
                 $sub_total = $random_produk->Harga * $jumlah;
                 $total_transaksi += $sub_total;
-
-                DetailTransaksi::create([
-                    'ID_DetailTransaksi' => 'DTL' . str_pad($i, 4, '0', STR_PAD_LEFT) . '-' . $j,
-                    'ID_Transaksi' => $transaksi->ID_Transaksi,
-                    'ID_Produk' => $random_produk->ID_Produk,
-                    'Jumlah_Produk' => $jumlah,
-                    'SubTotal' => $sub_total
-                ]);
+                DetailTransaksi::create(['ID_DetailTransaksi' => 'DTL' . str_pad($i, 4, '0', STR_PAD_LEFT) . '-' . $j, 'ID_Transaksi' => $transaksi->ID_Transaksi, 'ID_Produk' => $random_produk->ID_Produk, 'Jumlah_Produk' => $jumlah, 'SubTotal' => $sub_total]);
             }
-
-            // Update TotalHarga di Transaksi
             $transaksi->TotalHarga = $total_transaksi;
             $transaksi->save();
+        }
+
+        // 6. SINKRONISASI (PERBAIKAN)
+        $allPelanggans = Pelanggan::all();
+        foreach ($allPelanggans as $pelanggan) {
+            $count = Transaksi::where('ID_Pelanggan', $pelanggan->ID_Pelanggan)->count();
+            $pelanggan->Frekuensi_Pembelian = $count;
+            $pelanggan->save();
         }
     }
 }

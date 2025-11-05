@@ -44,9 +44,15 @@
             <label for="Kata_Sandi">Kata Sandi</label>
             <input type="text" id="Kata_Sandi" name="Kata_Sandi" value="{{ $pelanggan->Kata_Sandi }}" required>
         </div>
-        <div>
+        <!-- <div>
             <label for="Frekuensi_Pembelian">Frekuensi Pembelian</label>
             <input type="number" id="Frekuensi_Pembelian" name="Frekuensi_Pembelian" value="{{ $pelanggan->Frekuensi_Pembelian }}" required>
+        </div> -->
+        <div>
+            <label for="Frekuensi_Pembelian">Frekuensi Pembelian (Otomatis)</label>
+            <input type="number" id="Frekuensi_Pembelian" name="Frekuensi_Pembelian" 
+                   value="{{ $pelanggan->transaksi_count }}" readonly disabled 
+                   style="background-color: #eee;">
         </div>
         <button type="submit">Update Pelanggan</button>
         <a href="{{ route('pelanggan.index') }}" style="margin-left: 10px;">Batal</a>

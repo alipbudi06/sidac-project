@@ -7,36 +7,32 @@ use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        // View untuk Top 5 Produk Terlaris
+        // View untuk Top 5 Produk (Tidak berubah)
         DB::statement("
             CREATE VIEW v_top_produk AS
             SELECT
-                p.ID_Produk, -- <-- TAMBAHAN
+                p.ID_Produk,
                 p.Nama_Produk,
                 SUM(dt.Jumlah_Produk) as total_terjual
             FROM produk as p
             JOIN detail_transaksi as dt ON p.ID_Produk = dt.ID_Produk
-            GROUP BY p.ID_Produk, p.Nama_Produk; -- <-- TAMBAHAN
+            GROUP BY p.ID_Produk, p.Nama_Produk;
         ");
 
-        // View untuk Top 5 Member Loyal
+        // PERBAIKAN: View untuk Top 5 Member Loyal
         DB::statement("
             CREATE VIEW v_top_pelanggan AS
             SELECT
-                p.ID_Pelanggan, -- <-- TAMBAHAN
-                p.Nama_Pelanggan,
-                COUNT(t.ID_Transaksi) as total_transaksi
-            FROM pelanggan as p
-            JOIN transaksi as t ON p.ID_Pelanggan = t.ID_Pelanggan
-            GROUP BY p.ID_Pelanggan, p.Nama_Pelanggan; -- <-- TAMBAHAN
+                ID_Pelanggan,
+                Nama_Pelanggan,
+                Frekuensi_Pembelian 
+            FROM pelanggan
+            WHERE is_member = 1;
         ");
 
-        // View untuk Grafik Pendapatan Bulanan
+        // View untuk Grafik Pendapatan (Tidak berubah)
         DB::statement("
             CREATE VIEW v_pendapatan_bulanan AS
             SELECT
@@ -47,9 +43,6 @@ return new class extends Migration
         ");
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         DB::statement('DROP VIEW IF EXISTS v_top_produk');

@@ -5,67 +5,71 @@ namespace App\Http\Controllers;
 use App\Models\Produk;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use App\Http\Controllers\Controller; // Pastikan ini di-import
-// use Illuminate\Support\Facades\Gate; // (Kita matikan dulu, sesuai reset)
+use App\Http\Controllers\Controller; 
+use Maatwebsite\Excel\Facades\Excel; // <-- IMPORT BARU
+use App\Imports\ProdukImport;      // <-- IMPORT BARU
 
 class ProdukController extends Controller
 {
-    public function index()
+    /**
+     * MODIFIKASI FUNGSI INDEX UNTUK FILTER
+     */
+    public function index(Request $request)
     {
-        // Gate::authorize('is-pegawai-or-manajer');
-        $produks = Produk::all();
-        return view('produk.index', ['produks' => $produks]);
+        $search = $request->query('search');
+        
+        $query = Produk::query();
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('ID_Produk', 'LIKE', "%{$search}%")
+                  ->orWhere('Nama_Produk', 'LIKE', "%{$search}%")
+                  ->orWhere('Kategori', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $produks = $query->get();
+        
+        return view('produk.index', [
+            'produks' => $produks,
+            'search' => $search 
+        ]);
     }
 
     public function create()
     {
-        // Gate::authorize('is-manajer');
-        
-        // Logika ID Otomatis dari Teman Anda
         $lastProduk = \App\Models\Produk::orderBy('ID_Produk', 'desc')->first();
         $newId = $lastProduk ? 'P' . str_pad(((int) substr($lastProduk->ID_Produk, 1)) + 1, 3, '0', STR_PAD_LEFT) : 'P001';
-        
         return view('produk.create', compact('newId'));
     }
 
     public function store(Request $request)
     {
-        // Gate::authorize('is-manajer');
-
-        // Logika ID Otomatis dari Teman Anda
         $lastProduk = \App\Models\Produk::orderBy('ID_Produk', 'desc')->first();
         $newId = $lastProduk ? 'P' . str_pad(((int) substr($lastProduk->ID_Produk, 1)) + 1, 3, '0', STR_PAD_LEFT) : 'P001';
-
-        // Validasi (tanpa ID_Produk)
         $validatedData = $request->validate([
             'Nama_Produk' => 'required|string|max:30',
             'Kategori' => 'required|string|max:20',
             'Harga' => 'required|numeric|min:0',
         ]);
-
-        // Gabungkan data
         $validatedData['ID_Produk'] = $newId; 
-
         Produk::create($validatedData);
-        
         return redirect(route('produk.index'))->with('success', 'Produk baru berhasil ditambahkan!');
     }
 
     public function show(string $id)
     {
-        // Gate::authorize('is-pegawai-or-manajer');
+        //
     }
 
     public function edit(string $id)
     {
-        // Gate::authorize('is-manajer');
         $produk = Produk::findOrFail($id);
         return view('produk.edit', ['produk' => $produk]);
     }
 
     public function update(Request $request, string $id)
     {
-        // Gate::authorize('is-manajer');
         $validatedData = $request->validate([
             'Nama_Produk' => 'required|string|max:30',
             'Kategori' => 'required|string|max:20',
@@ -78,9 +82,37 @@ class ProdukController extends Controller
 
     public function destroy(string $id)
     {
-        // Gate::authorize('is-manajer');
         $produk = Produk::findOrFail($id);
         $produk->delete();
         return redirect(route('produk.index'))->with('success', 'Produk berhasil dihapus!');
+    }
+
+    // ===================================
+    // === FUNGSI BARU UNTUK IMPORT ======
+    // ===================================
+
+    /**
+     * Menampilkan halaman/form untuk upload file.
+     */
+    public function showImportForm()
+    {
+        return view('produk.import');
+    }
+
+    /**
+     * Memproses file yang di-upload.
+     */
+    public function processImport(Request $request)
+    {
+        $request->validate([
+            'file_produk' => 'required|mimes:xls,xlsx,csv'
+        ]);
+
+        try {
+            Excel::import(new ProdukImport, $request->file('file_produk'));
+            return redirect(route('produk.index'))->with('success', 'Data produk berhasil di-import!');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Import gagal: ' . $e->getMessage()]);
+        }
     }
 }

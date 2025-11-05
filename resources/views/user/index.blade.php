@@ -1,99 +1,67 @@
 @extends('layouts.app')
-
 @section('title', 'Kelola User')
-
 @section('content')
-<style>
-    /* --- STYLE HALAMAN PELANGGAN --- */
-
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        border-radius: 10px;
-        overflow: hidden;
-        background-color: white;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    }
-
-    th {
-        background-color: #007bff;
-        color: white;
-        text-align: center;
-        padding: 12px 14px;
-        font-weight: 600;
-    }
-
-    td {
-        padding: 10px 14px;
-        border-bottom: 1px solid #eee;
-        text-align: center;
-    }
-
-    tr:last-child td {
-        border-bottom: none;
-    }
-
-    tr:hover {
-        background-color: #f4f8ff;
-    }
-
-    /* --- TOMBOL STYLE --- */
-    .btn {
-    display: inline-block;
-    padding: 8px 14px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    text-align: center;
-    border: none;
-    cursor: pointer;
-    font-size: 0.9em;
-    margin: 2px 4px; /* kasih jarak halus antar tombol */
-    }
-
-    .btn-tambah {
-        background-color: #28a745;
-        color: white;
-        padding: 10px 18px; /* lebih besar dari tombol lain */
-        font-size: 0.95em;
-    }
-
-    /* Tombol Edit — sedang */
-    .btn-edit {
-        background-color: #ffc107;
-        color: black;
-        padding: 10px 17px;
-    }
-
-    /* Tombol Hapus — sedikit lebih kecil dan ringkas */
-    .btn-hapus {
-        background-color: #dc3545;
-        color: white;
-        padding: 10px 17px;
-    }
-
-    /* Efek hover semua tombol */
-    .btn:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
-    }
-</style>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .btn { padding: 8px 12px; border-radius: 6px; text-decoration: none; display: inline-block; font-size: 0.9em; font-weight: bold; border: none; cursor: pointer; }
+        .btn-tambah { background-color: #fd7e14; color: white; } /* Oranye */
+        .btn-import { background-color: #198754; color: white; } /* Hijau */
+        .btn-edit { background-color: #ffc107; color: black; font-size: 0.8em; padding: 5px 10px; }
+        .btn-hapus { background-color: #dc3545; color: white; font-size: 0.8em; padding: 5px 10px; }
+        
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header-controls h1 {
+            font-size: 1.8em;
+            margin: 0;
+            flex: 1;
+        }
+        .search-bar {
+            flex: 2;
+            margin-right: 15px;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 9px 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box; /* Penting */
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        .button-group .btn i {
+            margin-right: 5px;
+        }
+    </style>
     
-    <div class="header">
-        <h1>Kelola Data User</h1>
-        <a href="{{ route('user.create') }}" class="btn btn-tambah">Tambah User Baru</a>
+    <div class="header-controls">
+        <h1>Data User</h1>
+        
+        <form method="GET" action="{{ route('user.index') }}" class="search-bar">
+            <input type="text" name="search" placeholder="Cari ID, Nama, Username, Email, atau Role..." 
+                   value="{{ $search ?? '' }}">
+            </form>
+
+        <div class="button-group">
+            <a href="{{ route('user.import.form') }}" class="btn btn-import">
+                <i class="fa fa-file-import"></i> Import File
+            </a>
+            <a href="{{ route('user.create') }}" class="btn btn-tambah">
+                + Tambah
+            </a>
+        </div>
     </div>
     
     @if (session('success'))
-        <div style="color: green; margin-top: 10px;">
+        <div style="color: green; margin-bottom: 15px; background: #e6f7ec; padding: 10px; border-radius: 6px;">
             {{ session('success') }}
         </div>
     @endif
@@ -110,7 +78,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($users as $user)
+            @forelse ($users as $user)
             <tr>
                 <td>{{ $user->ID_User }}</td>
                 <td>{{ $user->Nama_User }}</td>
@@ -119,7 +87,6 @@
                 <td>{{ $user->Role }}</td>
                 <td>
                     <a href="{{ route('user.edit', $user->ID_User) }}" class="btn btn-edit">Edit</a>
-                    
                     <form action="{{ route('user.destroy', $user->ID_User) }}" method="POST" style="display:inline;">
                         @csrf
                         @method('DELETE')
@@ -127,7 +94,13 @@
                     </form>
                 </td>
             </tr>
-            @endforeach
+            @empty
+            <tr>
+                <td colspan="6" style="text-align: center;">
+                    Tidak ada data user yang cocok dengan pencarian Anda.
+                </td>
+            </tr>
+            @endforelse
         </tbody>
     </table>
 @endsection

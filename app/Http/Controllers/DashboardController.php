@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB; 
-use App\Http\Controllers\Controller; // <-- INI ADALAH BARIS YANG HILANG
+use App\Http\Controllers\Controller; 
 
 class DashboardController extends Controller
 {
@@ -21,44 +21,10 @@ class DashboardController extends Controller
         $tgl_mulai = $request->input('tgl_mulai');
         $tgl_selesai = $request->input('tgl_selesai');
 
-        // === Buat Query Dasar ===
+        // === Query Statistik (Ini tetap dinamis berdasarkan filter) ===
         $queryStatistik = DB::table('transaksi');
-
-        $queryTopProduk = DB::table('produk as p')
-            ->join('detail_transaksi as dt', 'p.ID_Produk', '=', 'dt.ID_Produk')
-            ->join('transaksi as t', 'dt.ID_Transaksi', '=', 't.ID_Transaksi')
-            ->select('p.Nama_Produk', DB::raw('SUM(dt.Jumlah_Produk) as total_terjual'))
-            ->groupBy('p.Nama_Produk');
-
-        $queryTopPelanggan = DB::table('pelanggan as p')
-            ->join('transaksi as t', 'p.ID_Pelanggan', '=', 't.ID_Pelanggan')
-            ->select('p.Nama_Pelanggan', DB::raw('COUNT(t.ID_Transaksi) as total_transaksi'))
-            ->groupBy('p.Nama_Pelanggan');
-
-        $queryGrafik = DB::table('transaksi')
-            ->select(
-                DB::raw("strftime('%Y-%m', Tanggal) as bulan"),
-                DB::raw('SUM(TotalHarga) as total')
-            )
-            ->groupBy('bulan');
-
-
-        // === Terapkan Filter Tanggal JIKA ADA ===
-        if ($tgl_mulai) {
-            $queryStatistik->whereDate('Tanggal', '>=', $tgl_mulai);
-            $queryTopProduk->whereDate('t.Tanggal', '>=', $tgl_mulai);
-            $queryTopPelanggan->whereDate('t.Tanggal', '>=', $tgl_mulai);
-            $queryGrafik->whereDate('Tanggal', '>=', $tgl_mulai);
-        }
-
-        if ($tgl_selesai) {
-            $queryStatistik->whereDate('Tanggal', '<=', $tgl_selesai);
-            $queryTopProduk->whereDate('t.Tanggal', '<=', $tgl_selesai);
-            $queryTopPelanggan->whereDate('t.Tanggal', '<=', $tgl_selesai);
-            $queryGrafik->whereDate('Tanggal', '<=', $tgl_selesai);
-        }
-        
-        // === Eksekusi Query Setelah Filter Diterapkan ===
+        if ($tgl_mulai) $queryStatistik->whereDate('Tanggal', '>=', $tgl_mulai);
+        if ($tgl_selesai) $queryStatistik->whereDate('Tanggal', '<=', $tgl_selesai);
         
         $statistik = $queryStatistik->select(
                             DB::raw('SUM(TotalHarga) as total_pendapatan'),
@@ -66,25 +32,39 @@ class DashboardController extends Controller
                         )
                         ->first();
         
-        $topProduk = $queryTopProduk->orderBy('total_terjual', 'DESC')
-                            ->limit(5)
-                            ->get();
+        // === Query Analitik (Membaca dari SQL View) ===
 
-        $topPelanggan = $queryTopPelanggan->orderBy('total_transaksi', 'DESC')
-                            ->limit(5)
-                            ->get();
+        // Query Top 5 Produk (Ini membaca v_top_produk)
+        $topProduk = DB::table('v_top_produk')
+            ->orderBy('total_terjual', 'DESC')
+            ->limit(5)
+            ->get();
 
+        // ========================================================
+        // === PERBAIKAN YANG ANDA MINTA ADA DI SINI ===
+        // ========================================================
+        // Query Top 5 Pelanggan diubah agar MEMBACA dari v_top_pelanggan,
+        // yang datanya diambil dari kolom 'Frekuensi_Pembelian'.
+        $topPelanggan = DB::table('v_top_pelanggan')
+            ->orderBy('Frekuensi_Pembelian', 'DESC') // Mengurutkan berdasarkan kolom DB
+            ->limit(5)
+            ->get();
+        // ========================================================
+
+        // Query Grafik Pendapatan (Ini membaca v_pendapatan_bulanan)
+        $queryGrafik = DB::table('v_pendapatan_bulanan');
+        if ($tgl_mulai) $queryGrafik->where('bulan', '>=', \Carbon\Carbon::parse($tgl_mulai)->format('Y-m'));
+        if ($tgl_selesai) $queryGrafik->where('bulan', '<=', \Carbon\Carbon::parse($tgl_selesai)->format('Y-m'));
+        
         $grafikPendapatan = $queryGrafik->orderBy('bulan', 'ASC')->get();
             
-        // ========================================================
-        
         // 6. Kirim semua data ke view
         return view('dashboard', [
             'namaUser' => $user->Nama_User,
             'roleUser' => $user->Role,
             'statistik' => $statistik,
             'topProduk' => $topProduk,
-            'topPelanggan' => $topPelanggan,
+            'topPelanggan' => $topPelanggan, // <-- Sekarang datanya sinkron
             'grafikPendapatan_json' => $grafikPendapatan->toJson()
         ]);
     }

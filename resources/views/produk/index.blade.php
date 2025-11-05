@@ -1,143 +1,104 @@
 @extends('layouts.app')
-
 @section('title', 'Kelola Produk')
-
 @section('content')
-<style>
-    body {
-        background-color: #f5f8fb; /* biar tabelnya kontras */
-    }
+    <style>
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .btn { padding: 8px 12px; border-radius: 6px; text-decoration: none; display: inline-block; font-size: 0.9em; font-weight: bold; border: none; cursor: pointer; }
+        .btn-tambah { background-color: #fd7e14; color: white; } /* Oranye */
+        .btn-import { background-color: #198754; color: white; } /* Hijau */
+        .btn-edit { background-color: #ffc107; color: black; font-size: 0.8em; padding: 5px 10px; }
+        .btn-hapus { background-color: #dc3545; color: white; font-size: 0.8em; padding: 5px 10px; }
+        
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header-controls h1 {
+            font-size: 1.8em;
+            margin: 0;
+            flex: 1;
+        }
+        .search-bar {
+            flex: 2;
+            margin-right: 15px;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 9px 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box; /* Penting */
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        .button-group .btn i {
+            margin-right: 5px;
+        }
+    </style>
+    
+    <div class="header-controls">
+        <h1>Data Produk</h1>
+        
+        <form method="GET" action="{{ route('produk.index') }}" class="search-bar">
+            <input type="text" name="search" placeholder="Cari ID, nama, atau kategori produk..." 
+                   value="{{ $search ?? '' }}">
+            </form>
 
-    h1 {
-        font-size: 1.5em;
-        margin-bottom: 10px;
-    }
-
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-
-    .btn {
-    display: inline-block;
-    padding: 8px 14px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    text-align: center;
-    border: none;
-    cursor: pointer;
-    font-size: 0.9em;
-    margin: 2px 4px; /* kasih jarak halus antar tombol */
-    }
-
-    /* Tombol Tambah — lebih besar dan menonjol */
-    .btn-tambah {
-        background-color: #28a745;
-        color: white;
-        padding: 10px 18px; /* lebih besar dari tombol lain */
-        font-size: 0.95em;
-    }
-
-    /* Tombol Edit — sedang, biar teksnya pas */
-    .btn-edit {
-        background-color: #ffc107;
-        color: black;
-        padding: 10px 17px;
-    }
-
-    /* Tombol Hapus — sedikit lebih kecil dan ringkas */
-    .btn-hapus {
-        background-color: #dc3545;
-        color: white;
-        padding: 10px 17px;
-    }
-
-    /* Efek hover semua tombol */
-    .btn:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
-    }
-
-
-    /* ====== Tabel Card Style ====== */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        border-radius: 10px;
-        overflow: hidden;
-        background-color: white;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    }
-
-    th {
-        background-color: #007bff;
-        color: white;
-        text-align: center;
-        padding: 12px 14px;
-        font-weight: 600;
-    }
-
-    td {
-        padding: 10px 14px;
-        border-bottom: 1px solid #eee;
-        text-align: center;
-    }
-
-    tr:last-child td {
-        border-bottom: none;
-    }
-
-    tr:hover {
-        background-color: #f4f8ff;
-    }
-</style>
-
-<div class="header">
-    <h1>Kelola Data Produk</h1>
-    @if (Auth::check() && Auth::user()->Role === 'Manajer Operasional')
-        <a href="{{ route('produk.create') }}" class="btn btn-tambah">Tambah Produk Baru</a>
-    @endif
-</div>
-
-@if (session('success'))
-    <div style="color: green; margin-bottom: 10px;">
-        {{ session('success') }}
+        <div class="button-group">
+            <a href="{{ route('produk.import.form') }}" class="btn btn-import">
+                <i class="fa fa-file-import"></i> Import File
+            </a>
+            <a href="{{ route('produk.create') }}" class="btn btn-tambah">
+                + Tambah
+            </a>
+        </div>
     </div>
-@endif
+    
+    @if (session('success'))
+        <div style="color: green; margin-bottom: 15px; background: #e6f7ec; padding: 10px; border-radius: 6px;">
+            {{ session('success') }}
+        </div>
+    @endif
 
-<table>
-    <thead>
-        <tr>
-            <th>ID Produk</th>
-            <th>Nama Produk</th>
-            <th>Kategori</th>
-            <th>Harga</th>
-            <th>Aksi</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach ($produks as $produk)
+    <table>
+        <thead>
+            <tr>
+                <th>ID Produk</th>
+                <th>Nama Produk</th>
+                <th>Kategori</th>
+                <th>Harga</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($produks as $produk)
             <tr>
                 <td>{{ $produk->ID_Produk }}</td>
                 <td>{{ $produk->Nama_Produk }}</td>
                 <td>{{ $produk->Kategori }}</td>
                 <td>Rp {{ number_format($produk->Harga, 0, ',', '.') }}</td>
                 <td>
-                    @if (Auth::check() && Auth::user()->Role === 'Manajer Operasional')
-                        <a href="{{ route('produk.edit', $produk->ID_Produk) }}" class="btn btn-edit">Edit</a>
-                        <form action="{{ route('produk.destroy', $produk->ID_Produk) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-hapus" onclick="return confirm('Apakah Anda yakin?')">Hapus</button>
-                        </form>
-                    @endif
+                    <a href="{{ route('produk.edit', $produk->ID_Produk) }}" class="btn btn-edit">Edit</a>
+                    <form action="{{ route('produk.destroy', $produk->ID_Produk) }}" method="POST" style="display:inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-hapus" onclick="return confirm('Apakah Anda yakin?')">Hapus</button>
+                    </form>
                 </td>
             </tr>
-        @endforeach
-    </tbody>
-</table>
+            @empty
+            <tr>
+                <td colspan="5" style="text-align: center;">
+                    Tidak ada data produk yang cocok dengan pencarian Anda.
+                </td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
 @endsection

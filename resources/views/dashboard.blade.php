@@ -238,14 +238,21 @@
         </table>
     </div>
 
+    <!-- ======================================= -->
+    <!-- INI ADALAH BLOK KODE YANG DIPERBAIKI -->
+    <!-- ======================================= -->
     <div class="card top5-card">
         <h3><i class="fa fa-gem icon"></i> Top 5 Member Loyalitas</h3>
         <table>
             <tbody>
                 @forelse ($topPelanggan as $pelanggan)
                     <tr>
-                        <td>{{ $pelanggan->Nama_Pelanggan }}</td>
-                        <td><strong>{{ $pelanggan->total_transaksi }}</strong> transaksi</td>
+                        <td>
+                            <a href="{{ route('pelanggan.edit', $pelanggan->ID_Pelanggan) }}">
+                                {{ $pelanggan->Nama_Pelanggan }}
+                            </a>
+                        </td>
+                        <td><strong>{{ $pelanggan->Frekuensi_Pembelian }}</strong> pembelian</td>
                     </tr>
                 @empty
                     <tr><td colspan="2" class="empty-text">Belum ada data member</td></tr>
@@ -253,6 +260,6 @@
             </tbody>
         </table>
     </div>
-</section>
+</section> <!-- <-- Tag </section> yang benar ada di sini -->
 
 @endsection

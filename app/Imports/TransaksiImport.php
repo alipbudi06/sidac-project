@@ -16,14 +16,14 @@ class TransaksiImport implements ToModel, WithHeadingRow
     */
     public function model(array $row)
     {
-        // 3. Logika ini akan membaca setiap baris dari file Excel/CSV
-        // Pastikan nama header di file Anda SAMA PERSIS (cth: 'id_transaksi')
+        // 3. Pastikan header di file Excel Anda SAMA PERSIS
+        // (cth: 'id_transaksi', 'id_user', 'tanggal', dll.)
         
         return new Transaksi([
             'ID_Transaksi'      => $row['id_transaksi'],
             'ID_User'           => $row['id_user'],
             'ID_Pelanggan'      => $row['id_pelanggan'],
-            'Tanggal'           => \Carbon\Carbon::parse($row['tanggal']), // Otomatis konversi tanggal
+            'Tanggal'           => \Carbon\Carbon::parse($row['tanggal']),
             'TotalHarga'        => $row['totalharga'],
             'Metode_Pembayaran' => $row['metode_pembayaran'],
         ]);

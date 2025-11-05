@@ -4,42 +4,94 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Transaksi; 
+use App\Models\Produk; // <-- Import ini
 use App\Http\Controllers\Controller; 
-// Hapus 'Excel', 'Str', 'DB', 'Auth', 'Carbon' jika tidak dipakai lagi
+use Maatwebsite\Excel\Facades\Excel; // <-- Import ini
+use App\Imports\TransaksiImport;      // <-- Import ini
 
 class TransaksiController extends Controller
 {
     /**
      * Menampilkan halaman daftar (Read) transaksi.
+     * (Sudah diperbarui dengan filter dan $produks_list)
      */
-    public function index()
+    public function index(Request $request) 
     {
-        // Ambil data transaksi, TAPI juga ambil data relasinya (user & pelanggan)
-        $transaksis = Transaksi::with(['user', 'pelanggan'])
-                        ->orderBy('Tanggal', 'desc') 
-                        ->get();
+        // Ambil daftar produk untuk dropdown filter
+        $produks_list = Produk::orderBy('Nama_Produk')->get();
 
-        // Kirim data ke view
-        return view('transaksi.index', ['transaksis' => $transaksis]);
+        // Ambil semua input filter
+        $tgl_mulai = $request->query('tgl_mulai');
+        $tgl_selesai = $request->query('tgl_selesai');
+        $produk_id = $request->query('produk_id'); 
+
+        // Mulai query, dan ambil relasinya
+        $query = Transaksi::with(['user', 'pelanggan']);
+
+        // Terapkan filter (jika ada)
+        if ($tgl_mulai) {
+            $query->whereDate('Tanggal', '>=', $tgl_mulai);
+        }
+        if ($tgl_selesai) {
+            $query->whereDate('Tanggal', '<=', $tgl_selesai);
+        }
+        if ($produk_id) {
+            $query->whereHas('detailTransaksi', function($q) use ($produk_id) {
+                $q->where('ID_Produk', $produk_id);
+            });
+        }
+
+        // Eksekusi query
+        $transaksis = $query->orderBy('Tanggal', 'desc')->get();
+
+        // Kirim SEMUA data (termasuk $produks_list) ke view
+        return view('transaksi.index', [
+            'transaksis' => $transaksis,
+            'produks_list' => $produks_list, // <-- Ini memperbaiki error sebelumnya
+            'tgl_mulai' => $tgl_mulai,
+            'tgl_selesai' => $tgl_selesai,
+            'produk_filter' => $produk_id 
+        ]);
     }
 
     /**
-     * FUNGSI BARU: Menampilkan detail satu transaksi
+     * Menampilkan detail satu transaksi
      */
     public function show(string $id)
     {
-        // 1. Cari transaksi berdasarkan ID
-        // 2. Kita pakai 'with()' untuk mengambil semua data terkait:
-        //    - user (kasir)
-        //    - pelanggan
-        //    - detailTransaksi (daftar item)
-        //    - detailTransaksi.produk (nama produk di dalam daftar item)
         $transaksi = Transaksi::with(['user', 'pelanggan', 'detailTransaksi.produk'])
                         ->findOrFail($id);
-
-        // 3. Kirim data transaksi lengkap itu ke view 'show'
         return view('transaksi.show', ['transaksi' => $transaksi]);
     }
 
-    // HAPUS SEMUA FUNGSI LAIN (create, store, showImportForm, processImport)
+    // =============================================
+    // === FUNGSI YANG HILANG (INI PERBAIKANNYA) ===
+    // =============================================
+    public function showImportForm()
+    {
+        return view('transaksi.import');
+    }
+
+    // =============================================
+    // === FUNGSI YANG HILANG (INI PERBAIKANNYA) ===
+    // =============================================
+    public function processImport(Request $request)
+    {
+        // 1. Validasi file
+        $request->validate([
+            'file_transaksi' => 'required|mimes:xls,xlsx,csv' 
+        ]);
+
+        try {
+            // 2. Import file
+            Excel::import(new TransaksiImport, $request->file('file_transaksi'));
+            
+            // 3. Redirect kembali dengan pesan sukses
+            return redirect(route('transaksi.index'))->with('success', 'Data transaksi berhasil di-import!');
+
+        } catch (\Exception $e) {
+            // 4. Jika error (misal: header salah)
+            return back()->withErrors(['error' => 'Import gagal: ' . $e->getMessage()]);
+        }
+    }
 }
