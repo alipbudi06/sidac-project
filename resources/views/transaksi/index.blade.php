@@ -7,9 +7,12 @@
         th { background-color: #f2f2f2; }
         .btn { padding: 8px 12px; border-radius: 6px; text-decoration: none; display: inline-block; font-size: 0.9em; font-weight: bold; border: none; cursor: pointer; }
         .btn-detail { background-color: #0d6efd; color: white; font-size: 0.8em; padding: 5px 10px; }
+        .btn-detail:hover {background-color: #0a58ca !important; color: white !important;}
         .btn i { margin-right: 5px; }
-
-        /* === CSS BARU SESUAI GAMBAR === */
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
         .header-controls {
             display: flex;
             justify-content: space-between;
@@ -22,39 +25,73 @@
         }
         .btn-import { background-color: #198754; color: white; } /* Tombol Import Hijau */
 
-        .filter-card {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            border: 1px solid #eee;
-        }
-        .filter-card h2 {
-            margin-top: 0;
-            font-size: 1.2em;
-        }
-        .filter-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr; /* 3 Kolom */
-            gap: 20px;
-            align-items: flex-end; /* Sejajarkan bagian bawah */
-        }
-        .filter-group { display: flex; flex-direction: column; }
-        .filter-group label {
-            font-weight: bold;
-            font-size: 0.9em;
-            margin-bottom: 5px;
-            color: #555;
-        }
-        .filter-group input, .filter-group select {
-            width: 100%;
-            padding: 9px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .btn-filter { background-color: #0d6efd; color: white; padding: 10px 15px; }
+        .btn-filter {
+        background-color: #0d6efd;
+        color: white;
+        font-weight: 600;
+        transition: background 0.3s;
+    }
+    .btn-filter:hover { background-color: #0a58ca !important;
+    color: white !important; }
+
+    /* === Kartu Filter === */
+    .filter-card {
+        background: #fff;
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 25px;
+        border: 1px solid #eee;
+    }
+
+    .filter-card h2 {
+        margin-top: 0;
+        font-size: 1.2em;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 18px;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .filter-group label {
+        font-weight: 600;
+        font-size: 0.9em;
+        margin-bottom: 6px;
+        color: #444;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 0.9em;
+        box-sizing: border-box;
+        transition: border 0.2s;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+        border-color: #0d6efd;
+        outline: none;
+    }
+
+    .filter-actions {
+        margin-top: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
         
     </style>
     
@@ -68,7 +105,7 @@
     </div>
 
     <div class="filter-card">
-        <h2>Filter Transaksi</h2>
+        <h2><i class="fa fa-filter"></i> Filter Transaksi</h2>
         <form method="GET" action="{{ route('transaksi.index') }}">
             <div class="filter-grid">
                 <div class="filter-group">
@@ -92,15 +129,21 @@
                     </select>
                 </div>
             </div>
-            
-            <div style="margin-top: 15px;">
-                <button type="submit" class="btn btn-filter"><i class="fa fa-search"></i> Terapkan Filter</button>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-filter">
+                    <i class="fa fa-search"></i> Terapkan Filter
+                </button>
                 @if(isset($tgl_mulai) || isset($tgl_selesai) || isset($produk_filter))
-                    <a href="{{ route('transaksi.index') }}" style="margin-left: 10px; font-size: 0.9em;">Reset Filter</a>
+                    <a href="{{ route('transaksi.index') }}" style="font-size: 0.9em;">Reset Filter</a>
                 @endif
             </div>
         </form>
     </div>
+
+    @if (session('success'))
+        <div class="alert-success">{{ session('success') }}</div>
+    @endif
     
     @if (session('success'))
         <div style="color: green; margin-bottom: 15px; background: #e6f7ec; padding: 10px; border-radius: 6px;">
@@ -142,4 +185,9 @@
             @endforelse
         </tbody>
     </table>
+    <div class="d-flex justify-content-center mt-4">
+        {{ $transaksis->links('pagination::bootstrap-5') }}
+    </div>
+
+
 @endsection

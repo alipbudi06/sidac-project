@@ -28,7 +28,7 @@ class ProdukController extends Controller
             });
         }
 
-        $produks = $query->get();
+        $produks = $query->paginate(10)->appends(['search' => $search]);
         
         return view('produk.index', [
             'produks' => $produks,

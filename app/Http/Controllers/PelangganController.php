@@ -22,7 +22,8 @@ class PelangganController extends Controller
                   ->orWhere('Email_Pelanggan', 'LIKE', "%{$search}%");
             });
         }
-        $pelanggans = $query->orderBy('Nama_Pelanggan', 'asc')->get();
+        $pelanggans = $query->orderBy('Nama_Pelanggan', 'asc')->paginate(10);
+        $pelanggans->appends(['search' => $search]);
         
         return view('pelanggan.index', [
             'pelanggans' => $pelanggans,
@@ -53,13 +54,12 @@ class PelangganController extends Controller
         return redirect(route('pelanggan.index'))->with('success', 'Member baru berhasil ditambahkan!');
     }
 
-    public function edit(string $id)
+    public function edit($id)
     {
-        $pelanggan = Pelanggan::findOrFail($id);
-        if ($pelanggan->is_member == false) {
-            abort(404);
-        }
-        return view('pelanggan.edit', ['pelanggan' => $pelanggan]);
+        $pelanggan = Pelanggan::withCount('transaksi')->findOrFail($id);
+        // 'transaksi_count' akan otomatis berisi jumlah transaksi
+
+        return view('pelanggan.edit', compact('pelanggan'));
     }
 
     public function update(Request $request, string $id)

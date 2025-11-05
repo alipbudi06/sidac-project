@@ -42,7 +42,13 @@ class TransaksiController extends Controller
         }
 
         // Eksekusi query
-        $transaksis = $query->orderBy('Tanggal', 'desc')->get();
+        $transaksis = $query->orderBy('Tanggal', 'desc')->paginate(10)
+            ->appends([
+                'tgl_mulai' => $tgl_mulai,
+                'tgl_selesai' => $tgl_selesai,
+                'produk_id' => $produk_id
+            ]);
+
 
         // Kirim SEMUA data (termasuk $produks_list) ke view
         return view('transaksi.index', [
