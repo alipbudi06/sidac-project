@@ -3,29 +3,51 @@
 namespace App\Imports;
 
 use App\Models\Transaksi;
-use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithHeadingRow; // <-- 1. Import ini
+use App\Models\Pelanggan; // <-- 1. IMPORT MODEL PELANGGAN
+use Illuminate\Support\Collection; // <-- 2. IMPORT COLLECTION
+use Maatwebsite\Excel\Concerns\ToCollection; // <-- 3. UBAH DARI ToModel
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Illuminate\Support\Facades\DB; // <-- 4. IMPORT DB (untuk keamanan)
 
-// 2. Tambahkan WithHeadingRow
-class TransaksiImport implements ToModel, WithHeadingRow 
+// 5. Ubah 'ToModel' menjadi 'ToCollection'
+class TransaksiImport implements ToCollection, WithHeadingRow 
 {
     /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
+    * @param Collection $rows
     */
-    public function model(array $row)
+    public function collection(Collection $rows)
     {
-        // 3. Pastikan header di file Excel Anda SAMA PERSIS
-        // (cth: 'id_transaksi', 'id_user', 'tanggal', dll.)
+        // Gunakan Transaksi Database agar jika 1 baris gagal, semua dibatalkan
+        DB::beginTransaction();
+        try {
+            
+            foreach ($rows as $row) 
+            {
+                // 6. Buat Transaksi (sama seperti sebelumnya)
+                Transaksi::create([
+                    'ID_Transaksi'      => $row['id_transaksi'],
+                    'ID_User'           => $row['id_user'],
+                    'ID_Pelanggan'      => $row['id_pelanggan'],
+                    'Tanggal'           => \Carbon\Carbon::parse($row['tanggal']),
+                    'TotalHarga'        => $row['totalharga'],
+                    'Metode_Pembayaran' => $row['metode_pembayaran'],
+                ]);
+
+                // ===================================================
+                // 7. TAMBAHKAN LOGIKA INCREMENT (INI PERBAIKANNYA)
+                // ===================================================
+                $pelanggan = Pelanggan::find($row['id_pelanggan']);
+                if ($pelanggan) {
+                    $pelanggan->increment('Frekuensi_Pembelian');
+                }
+            }
+
+            DB::commit(); // Simpan semua perubahan jika loop berhasil
         
-        return new Transaksi([
-            'ID_Transaksi'      => $row['id_transaksi'],
-            'ID_User'           => $row['id_user'],
-            'ID_Pelanggan'      => $row['id_pelanggan'],
-            'Tanggal'           => \Carbon\Carbon::parse($row['tanggal']),
-            'TotalHarga'        => $row['totalharga'],
-            'Metode_Pembayaran' => $row['metode_pembayaran'],
-        ]);
+        } catch (\Exception $e) {
+            DB::rollBack(); // Batalkan semua jika ada error
+            // Lempar error kembali ke Controller
+            throw $e; 
+        }
     }
 }
