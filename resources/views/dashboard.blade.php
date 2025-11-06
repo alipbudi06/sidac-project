@@ -320,7 +320,7 @@
                                 {{ $pelanggan->Nama_Pelanggan }}
                             </a>
                         </td>
-                        <td><strong>{{ $pelanggan->Frekuensi_Pembelian }}</strong> pembelian</td>
+                        <td><strong>{{ $pelanggan->total_pembelian }}</strong> pembelian</td>
                     </tr>
                 @empty
                     <tr><td colspan="2" class="empty-text">Belum ada data member pada periode ini</td></tr>

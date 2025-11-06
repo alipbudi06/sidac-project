@@ -24,6 +24,7 @@
             margin: 0;
         }
         .btn-import { background-color: #198754; color: white; } /* Tombol Import Hijau */
+        .btn-import:hover { background-color: #146c43 !important; color: white !important; }
 
         .btn-filter {
         background-color: #0d6efd;

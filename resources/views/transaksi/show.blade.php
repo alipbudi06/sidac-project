@@ -25,10 +25,34 @@
         th { background-color: #f2f2f2; }
         .text-right { text-align: right; }
         .total-row { font-weight: bold; font-size: 1.1em; }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .page-header h1 {
+            font-size: 2em; /* ukuran lebih besar */
+            margin: 0;
+        }
+        .btn-back {
+            padding: 8px 15px;
+            background-color: #3490dc;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .btn-back:hover {
+            background-color: #2779bd;
+        }
     </style>
     
-    <h1>Detail Transaksi: {{ $transaksi->ID_Transaksi }}</h1>
-    <a href="{{ route('transaksi.index') }}">&larr; Kembali ke Daftar Transaksi</a>
+    <div class="page-header">
+        <h1>Detail Transaksi: {{ $transaksi->ID_Transaksi }}</h1>
+        <a href="{{ route('transaksi.index') }}" class="btn-back">&larr; Kembali</a>
+    </div>
 
     <div class="detail-grid">
         <div class="detail-box">

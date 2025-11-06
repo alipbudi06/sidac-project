@@ -13,23 +13,28 @@ return new class extends Migration
         DB::statement("
             CREATE VIEW v_top_produk AS
             SELECT
-                p.ID_Produk,
                 p.Nama_Produk,
                 SUM(dt.Jumlah_Produk) as total_terjual
-            FROM produk as p
-            JOIN detail_transaksi as dt ON p.ID_Produk = dt.ID_Produk
-            GROUP BY p.ID_Produk, p.Nama_Produk;
+            FROM produk p
+            JOIN detail_transaksi dt ON p.ID_Produk = dt.ID_Produk
+            JOIN transaksi t ON dt.ID_Transaksi = t.ID_Transaksi
+            GROUP BY p.ID_Produk, p.Nama_Produk, t.Tanggal
+            ORDER BY total_terjual DESC LIMIT 5;
         ");
 
         // PERBAIKAN: View untuk Top 5 Member Loyal
         DB::statement("
             CREATE VIEW v_top_pelanggan AS
             SELECT
-                ID_Pelanggan,
-                Nama_Pelanggan,
-                Frekuensi_Pembelian 
-            FROM pelanggan
-            WHERE is_member = 1;
+                pl.ID_Pelanggan,
+                pl.Nama_Pelanggan,
+                COUNT(t.ID_Transaksi) AS Frekuensi_Pembelian,
+                t.Tanggal
+            FROM pelanggan pl
+            JOIN transaksi t ON pl.ID_Pelanggan = t.ID_Pelanggan
+            WHERE pl.is_member = 1
+            GROUP BY pl.ID_Pelanggan, pl.Nama_Pelanggan, t.Tanggal
+            ORDER BY total_terjual DESC LIMIT 5;
         ");
 
         // View untuk Grafik Pendapatan (Tidak berubah)
