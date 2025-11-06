@@ -51,24 +51,34 @@ class DashboardController extends Controller
         // === Query Analitik (Membaca dari SQL View) ===
 
         // Query Top 5 Produk (Ini membaca v_top_produk)
-        $topProduk = DB::table('v_top_produk')
-            ->when($tgl_mulai, fn($q) => $q->whereDate('Tanggal', '>=', $tgl_mulai))
-            ->when($tgl_selesai, fn($q) => $q->whereDate('Tanggal', '<=', $tgl_selesai))
-            ->orderBy('total_terjual', 'DESC')
+        $topProduk = DB::table('produk as p')
+            ->join('detail_transaksi as dt', 'p.ID_Produk', '=', 'dt.ID_Produk')
+            ->join('transaksi as t', 'dt.ID_Transaksi', '=', 't.ID_Transaksi')
+            ->when($tgl_mulai, fn($q) => $q->whereDate('t.Tanggal', '>=', $tgl_mulai))
+            ->when($tgl_selesai, fn($q) => $q->whereDate('t.Tanggal', '<=', $tgl_selesai))
+            ->select('p.ID_Produk', 'p.Nama_Produk', DB::raw('SUM(dt.Jumlah_Produk) as total_terjual'))
+            ->groupBy('p.ID_Produk', 'p.Nama_Produk')
+            ->orderByDesc('total_terjual')
             ->limit(5)
             ->get();
+
 
         // ========================================================
         // === PERBAIKAN YANG ANDA MINTA ADA DI SINI ===
         // ========================================================
         // Query Top 5 Pelanggan diubah agar MEMBACA dari v_top_pelanggan,
         // yang datanya diambil dari kolom 'Frekuensi_Pembelian'.
-        $topPelanggan = DB::table('v_top_pelanggan')
-            ->when($tgl_mulai, fn($q) => $q->whereDate('Tanggal', '>=', $tgl_mulai))
-            ->when($tgl_selesai, fn($q) => $q->whereDate('Tanggal', '<=', $tgl_selesai))
-            ->orderBy('Frekuensi_Pembelian', 'DESC')
+        $topPelanggan = DB::table('pelanggan as pl')
+            ->join('transaksi as t', 'pl.ID_Pelanggan', '=', 't.ID_Pelanggan')
+            ->where('pl.is_member', 1)
+            ->when($tgl_mulai, fn($q) => $q->whereDate('t.Tanggal', '>=', $tgl_mulai))
+            ->when($tgl_selesai, fn($q) => $q->whereDate('t.Tanggal', '<=', $tgl_selesai))
+            ->select('pl.ID_Pelanggan', 'pl.Nama_Pelanggan', DB::raw('COUNT(t.ID_Transaksi) as total_pembelian'))
+            ->groupBy('pl.ID_Pelanggan', 'pl.Nama_Pelanggan')
+            ->orderByDesc('total_pembelian')
             ->limit(5)
             ->get();
+
         // ========================================================
 
         // Query Grafik Pendapatan (Ini membaca v_pendapatan_bulanan)
