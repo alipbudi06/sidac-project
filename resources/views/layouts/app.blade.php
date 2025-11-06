@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'SIDAC Admin')</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             background-color: #f4f7f6;
         }
@@ -22,6 +23,7 @@
 
         /* === SIDEBAR === */
         .sidebar {
+            z-index: 1000;
             width: 250px;
             background-color: #0d6efd;
             color: white;
@@ -34,7 +36,7 @@
 
         .sidebar.collapsed {
             width: 70px;
-            text-align: center;
+            /* text-align: center; */
         }
 
         .sidebar-header {
@@ -92,6 +94,8 @@
         .sidebar-footer {
             text-align: center;
             font-size: 0.9em;
+            position: relative; /* biar bisa z-index */
+            z-index: 1100;
         }
 
         .sidebar-footer a {
@@ -133,6 +137,8 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 1;
         }
     </style>
 </head>
@@ -164,7 +170,7 @@
                 </li>
                 <li>
                     <a href="{{ route('transaksi.index') }}" class="{{ Request::is('transaksi*') ? 'active' : '' }}">
-                        <i class="fa fa-receipt"></i> Kelola Transaksi
+                        <i class="fa fa-receipt"></i> <span>Kelola Transaksi</span>
                     </a>
                 </li>
                 @if (auth()->check() && auth()->user()->Role === 'Manajer Operasional')

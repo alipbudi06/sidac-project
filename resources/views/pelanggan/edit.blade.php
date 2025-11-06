@@ -11,6 +11,19 @@
         input { width: 95%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
         button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
         .error { color: red; font-size: 0.9em; }
+        .btn-batal {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #dc3545; /* merah */
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-batal:hover {
+            background-color: #c82333;
+        }
     </style>
 
     <h1>Form Edit Pelanggan</h1>
@@ -49,12 +62,12 @@
             <input type="number" id="Frekuensi_Pembelian" name="Frekuensi_Pembelian" value="{{ $pelanggan->Frekuensi_Pembelian }}" required>
         </div> -->
         <div>
-            <label for="Frekuensi_Pembelian">Frekuensi Pembelian (Otomatis)</label>
+            <label for="Frekuensi_Pembelian">Frekuensi Pembelian</label>
             <input type="number" id="Frekuensi_Pembelian" name="Frekuensi_Pembelian" 
-                   value="{{ $pelanggan->transaksi_count }}" readonly disabled 
+                   value="{{ $pelanggan->transaksi_count }}" readonly 
                    style="background-color: #eee;">
         </div>
-        <button type="submit">Update Pelanggan</button>
-        <a href="{{ route('pelanggan.index') }}" style="margin-left: 10px;">Batal</a>
+        <button type="submit">Update User</button>
+        <a href="{{ route('user.index') }}" class="btn-batal">Batal</a>
     </form>
 @endsection

@@ -7,6 +7,9 @@
     /* CSS ini sekarang spesifik HANYA untuk konten dashboard.
        Layout utama (sidebar, dll) diatur oleh layouts.app
     */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
     .sub-header {
         display: flex;
         justify-content: space-between;
@@ -23,6 +26,31 @@
     }
     .sub-header h1 { margin: 0; font-size: 1.5em; }
     .sub-header p { margin: 0; color: #555; }
+    .btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        text-decoration: none;
+        display: inline-block;
+        margin-left: 8px;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
     .btn-export {
         background: linear-gradient(135deg, #e65c00, #ff9900);
         color: #fff;
@@ -54,14 +82,19 @@
         gap: 20px;
         align-items: end; /* tombol sejajar bawah input */
     }
-    .filter-group { display: flex; flex-direction: column; }
+    .filter-group { position: relative; display: flex; flex-direction: column; }
     .filter-group label {
         font-size: 0.8em;
         color: #555;
         margin-bottom: 5px;
     }
     .filter-group input, .filter-group select {
-        padding: 8px 30px 8px 8px;
+        appearance: none; /* Hilangkan ikon bawaan browser */
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-color: #fff;
+        background-image: none;
+        padding: 8px 15px 8px 10px;
         border: 1px solid #ccc;
         border-radius: 4px;
         font-size: 0.9em;
@@ -69,13 +102,16 @@
     }
     .filter-group .input-icon {
         position: absolute;
-        right: 10px;
-        top: 30px; /* Menyesuaikan posisi vertikal agar sejajar dengan input */
+        right: 12px;       /* geser sedikit dari kanan */
+        bottom: 12px;      /* sejajarkan dengan teks select */
         color: #888;
-        pointer-events: none; /* Agar klik tetap tembus ke input */
+        pointer-events: none; /* biar klik tetap tembus ke select */
+        font-size: 0.8em;
+        z-index: 2;
     }
     .btn-filter {
-        background: linear-gradient(135deg, #0048b5, #007bff);
+        background: #0d6efd;
+        justify-content: space-between;
         color: #fff;
         border: none;
         padding: 10px;
@@ -84,7 +120,29 @@
         font-size: 0.9em;
         width: 100%;
     }
-    
+    .btn-filter:hover {
+        background-color: #0a58ca !important;
+        color: white !important;
+    }
+    .filter-buttons {
+    display: flex;
+    justify-content: space-between; /* tombol kiri-kanan */
+    align-items: center;
+    margin-top: 15px;
+    }
+
+    .filter-buttons .btn-filter {
+        flex: 1;
+        max-width: 200px;
+    }
+
+    .filter-buttons .btn-secondary {
+        flex: 1;                /* bagi ruang sama besar */
+        max-width: 220px;       /* biar gak kelebaran */
+        text-align: center;
+        padding: 10px 0;        /* tinggi konsisten */
+        font-weight: 600;
+    }
     .stats-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -166,15 +224,25 @@
             </div>
 
             <div class="filter-group">
-                <label for="produk">Produk</label>
-                <select id="produk" name="produk">
+                <label for="produk_id"><i class="fa fa-box"></i> Produk</label>
+                <select name="produk_id" id="produk_id">
                     <option value="">Semua Produk</option>
-                    <option value="kopi" {{ request('produk') == 'kopi' ? 'selected' : '' }}>Kopi</option>
+                    @foreach($produks_list as $produk)
+                        <option value="{{ $produk->ID_Produk }}" 
+                            {{ ($produk_filter ?? '') == $produk->ID_Produk ? 'selected' : '' }}>
+                            {{ $produk->Nama_Produk }}
+                        </option>
+                    @endforeach
                 </select>
+                <i class="fa fa-chevron-down input-icon"></i>
             </div>
-
-            <div class="filter-group" style="align-self: end;">
-                <button type="submit" class="btn-filter">Terapkan Filter</button>
+            <div class="filter-buttons">
+                <button type="submit" class="btn-filter">
+                    <i class="fa fa-search"></i> Terapkan
+                </button>
+                <a href="{{ route('dashboard') }}" class="btn btn-secondary">
+                    <i class="fa fa-undo"></i> Reset
+                </a>
             </div>
         </div>
     </form>
@@ -232,7 +300,7 @@
                         <td><strong>{{ $produk->total_terjual }}</strong> terjual</td>
                     </tr>
                 @empty
-                    <tr><td colspan="2" class="empty-text">Belum ada produk terjual hari ini</td></tr>
+                    <tr><td colspan="2" class="empty-text">Belum ada produk terjual pada periode ini</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -255,11 +323,10 @@
                         <td><strong>{{ $pelanggan->Frekuensi_Pembelian }}</strong> pembelian</td>
                     </tr>
                 @empty
-                    <tr><td colspan="2" class="empty-text">Belum ada data member</td></tr>
+                    <tr><td colspan="2" class="empty-text">Belum ada data member pada periode ini</td></tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 </section> <!-- <-- Tag </section> yang benar ada di sini -->
-
 @endsection

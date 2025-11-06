@@ -12,6 +12,20 @@
         button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
         .error { color: red; font-size: 0.9em; }
         .help-text { font-size: 0.8em; color: #555; }
+        .btn-batal {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #dc3545; /* merah */
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-batal:hover {
+            background-color: #c82333;
+        }
+
     </style>
 
     <h1>Form Edit User</h1>
@@ -62,6 +76,6 @@
             <input type="text" id="Nomor_HP" name="Nomor_HP" value="{{ $user->Nomor_HP }}">
         </div>
         <button type="submit">Update User</button>
-        <a href="{{ route('user.index') }}" style="margin-left: 10px;">Batal</a>
+        <a href="{{ route('user.index') }}" class="btn-batal">Batal</a>
     </form>
 @endsection
