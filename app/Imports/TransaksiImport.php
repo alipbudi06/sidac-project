@@ -3,29 +3,93 @@
 namespace App\Imports;
 
 use App\Models\Transaksi;
-use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithHeadingRow; // <-- 1. Import ini
+use App\Models\DetailTransaksi;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Carbon\Carbon;
 
-// 2. Tambahkan WithHeadingRow
-class TransaksiImport implements ToModel, WithHeadingRow 
+class TransaksiImport implements ToCollection, WithHeadingRow
 {
-    /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
-    public function model(array $row)
+    protected $counter = null;
+
+    public function collection(Collection $rows)
     {
-        // 3. Pastikan header di file Excel Anda SAMA PERSIS
-        // (cth: 'id_transaksi', 'id_user', 'tanggal', dll.)
-        
-        return new Transaksi([
-            'ID_Transaksi'      => $row['id_transaksi'],
-            'ID_User'           => $row['id_user'],
-            'ID_Pelanggan'      => $row['id_pelanggan'],
-            'Tanggal'           => \Carbon\Carbon::parse($row['tanggal']),
-            'TotalHarga'        => $row['totalharga'],
-            'Metode_Pembayaran' => $row['metode_pembayaran'],
+        $lastDetail = DetailTransaksi::selectRaw("MAX(CAST(SUBSTR(ID_DetailTransaksi, 2) AS INTEGER)) as max_num")
+            ->value('max_num');
+        $this->counter = $lastDetail ? intval($lastDetail) : 0;
+
+        Log::info("=== Mulai Import Transaksi ===");
+
+        Log::info("Last ID_DetailTransaksi", [
+            'last_detail' => $lastDetail,
         ]);
+
+        foreach ($rows as $index => $row) {
+
+            try {
+                Log::info("Proses baris", [
+                    'index' => $index,
+                    'row_data' => $row->toArray()
+                ]);
+
+                if (!$row['id_transaksi']) {
+                    Log::error("ID_Transaksi kosong", [
+                        'index' => $index,
+                        'row' => $row->toArray()
+                    ]);
+                    continue;
+                }
+
+                $transaksi = Transaksi::firstOrCreate(
+                    ['ID_Transaksi' => $row['id_transaksi']],
+                    [
+                        'ID_User'           => $row['id_user'],
+                        'ID_Pelanggan'      => $row['id_pelanggan'],
+                        'Tanggal'           => Carbon::parse($row['tanggal']),
+                        'TotalHarga'        => $row['totalharga'],
+                        'Metode_Pembayaran' => $row['metode_pembayaran'],
+                    ]
+                );
+
+                Log::info("Transaksi Created / Found", [
+                    'ID_Transaksi' => $transaksi->ID_Transaksi
+                ]);
+
+                $this->counter++;
+                $newDetailId = 'D' . str_pad($this->counter, 4, '0', STR_PAD_LEFT);
+
+                Log::info("Generated Detail ID", [
+                    'ID_DetailTransaksi' => $newDetailId
+                ]);
+
+                DetailTransaksi::create([
+                    'ID_DetailTransaksi' => $newDetailId,
+                    'ID_Transaksi'       => $transaksi->ID_Transaksi,
+                    'ID_Produk'          => $row['id_produk'],
+                    'Jumlah_Produk'      => $row['jumlah_produk'],
+                    'Diskon'             => $row['diskon'] ?? 0,
+                    'Service_Charge'     => $row['service_charge'] ?? 0,
+                    'SubTotal'           => $row['subtotal'],
+                ]);
+
+                Log::info("Detail Created", [
+                    'ID_DetailTransaksi' => $newDetailId
+                ]);
+            } catch (\Exception $e) {
+
+                Log::error("ERROR di baris", [
+                    'index' => $index,
+                    'row' => $row->toArray(),
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+
+                throw $e;
+            }
+        }
+
+        Log::info("=== Import selesai tanpa error ===");
     }
 }

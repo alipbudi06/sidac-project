@@ -128,7 +128,7 @@ class UserController extends Controller
     public function processImport(Request $request)
     {
         $request->validate([
-            'file_user' => 'required|mimes:xls,xlsx,csv'
+            'file_user' => 'required|mimes:xls,xlsx,csv,txt'
         ]);
 
         try {

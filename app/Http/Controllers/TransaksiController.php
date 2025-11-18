@@ -85,7 +85,7 @@ class TransaksiController extends Controller
     {
         // 1. Validasi file
         $request->validate([
-            'file_transaksi' => 'required|mimes:xls,xlsx,csv' 
+            'file_transaksi' => 'required|mimes:xls,xlsx,csv,txt' 
         ]);
 
         try {

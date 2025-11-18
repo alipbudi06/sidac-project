@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Pelanggan;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use App\Http\Controllers\Controller; 
+use App\Http\Controllers\Controller;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\PelangganImport;
 
 class PelangganController extends Controller
 {
@@ -13,24 +15,24 @@ class PelangganController extends Controller
     {
         // Membaca dari kolom DB (BUKAN withCount)
         $search = $request->query('search');
-        $query = Pelanggan::where('is_member', true); 
-        
+        $query = Pelanggan::where('is_member', true);
+
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('ID_Pelanggan', 'LIKE', "%{$search}%")
-                  ->orWhere('Nama_Pelanggan', 'LIKE', "%{$search}%")
-                  ->orWhere('Email_Pelanggan', 'LIKE', "%{$search}%");
+                    ->orWhere('Nama_Pelanggan', 'LIKE', "%{$search}%")
+                    ->orWhere('Email_Pelanggan', 'LIKE', "%{$search}%");
             });
         }
         $pelanggans = $query->orderBy('Nama_Pelanggan', 'asc')->paginate(10);
         $pelanggans->appends(['search' => $search]);
-        
+
         return view('pelanggan.index', [
             'pelanggans' => $pelanggans,
             'search' => $search
         ]);
     }
-    
+
     public function create()
     {
         $lastPelanggan = \App\Models\Pelanggan::orderBy('ID_Pelanggan', 'desc')->first();
@@ -47,9 +49,9 @@ class PelangganController extends Controller
             'Email_Pelanggan' => 'nullable|email|max:100|unique:pelanggan,Email_Pelanggan',
             'Kata_Sandi' => 'required|string|max:13',
         ]);
-        $validatedData['ID_Pelanggan'] = $newId; 
-        $validatedData['is_member'] = true; 
-        $validatedData['Frekuensi_Pembelian'] = 0; 
+        $validatedData['ID_Pelanggan'] = $newId;
+        $validatedData['is_member'] = true;
+        $validatedData['Frekuensi_Pembelian'] = 0;
         Pelanggan::create($validatedData);
         return redirect(route('pelanggan.index'))->with('success', 'Member baru berhasil ditambahkan!');
     }
@@ -71,7 +73,7 @@ class PelangganController extends Controller
             'Kata_Sandi' => 'required|string|max:13',
             // 'Frekuensi_Pembelian' => ... (DIHAPUS)
         ]);
-        
+
         $pelanggan = Pelanggan::findOrFail($id);
         $pelanggan->update($validatedData); // Hanya update data ini
         return redirect(route('pelanggan.index'))->with('success', 'Data member berhasil diperbarui!');
@@ -82,5 +84,24 @@ class PelangganController extends Controller
         $pelanggan = Pelanggan::findOrFail($id);
         $pelanggan->delete();
         return redirect(route('pelanggan.index'))->with('success', 'Member berhasil dihapus!');
+    }
+
+    public function showImportForm()
+    {
+        return view('pelanggan.import');
+    }
+
+    public function processImport(Request $request)
+    {
+        $request->validate([
+            'file_pelanggan' => 'required|mimes:xls,xlsx,csv,txt'
+        ]);
+
+        try {
+            Excel::import(new PelangganImport, $request->file('file_pelanggan'));
+            return redirect(route('pelanggan.index'))->with('success', 'Data produk berhasil di-import!');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Import gagal: ' . $e->getMessage()]);
+        }
     }
 }
