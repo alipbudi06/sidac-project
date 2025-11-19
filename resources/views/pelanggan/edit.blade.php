@@ -1,29 +1,13 @@
 @extends('layouts.app')
-
 @section('title', 'Edit Pelanggan')
-
 @section('content')
     <style>
-        /* CSS ini spesifik untuk form */
         form { background: #fff; padding: 25px; border-radius: 8px; max-width: 600px; margin: auto; }
         div { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; }
         input { width: 95%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
         button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
         .error { color: red; font-size: 0.9em; }
-        .btn-batal {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #dc3545; /* merah */
-            color: white;
-            border-radius: 4px;
-            text-decoration: none;
-            cursor: pointer;
-            border: none;
-        }
-        .btn-batal:hover {
-            background-color: #c82333;
-        }
     </style>
 
     <h1>Form Edit Pelanggan</h1>
@@ -57,17 +41,17 @@
             <label for="Kata_Sandi">Kata Sandi</label>
             <input type="text" id="Kata_Sandi" name="Kata_Sandi" value="{{ $pelanggan->Kata_Sandi }}" required>
         </div>
-        <!-- <div>
-            <label for="Frekuensi_Pembelian">Frekuensi Pembelian</label>
-            <input type="number" id="Frekuensi_Pembelian" name="Frekuensi_Pembelian" value="{{ $pelanggan->Frekuensi_Pembelian }}" required>
-        </div> -->
+        
+        <!-- DI-DISABLE AGAR TIDAK BISA DIEDIT MANUAL -->
         <div>
-            <label for="Frekuensi_Pembelian">Frekuensi Pembelian</label>
+            <label for="Frekuensi_Pembelian">Frekuensi Pembelian (Otomatis)</label>
             <input type="number" id="Frekuensi_Pembelian" name="Frekuensi_Pembelian" 
-                   value="{{ $pelanggan->transaksi_count }}" readonly 
+                   value="{{ $pelanggan->Frekuensi_Pembelian }}" readonly disabled 
                    style="background-color: #eee;">
+            <small style="color: #666;">Jumlah ini diupdate otomatis setiap kali transaksi dilakukan.</small>
         </div>
-        <button type="submit">Update User</button>
-        <a href="{{ route('user.index') }}" class="btn-batal">Batal</a>
+
+        <button type="submit">Update Pelanggan</button>
+        <a href="{{ route('pelanggan.index') }}" style="margin-left: 10px;">Batal</a>
     </form>
 @endsection

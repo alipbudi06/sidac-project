@@ -4,20 +4,65 @@
 
 @section('content')
     <style>
-        form { background: #fff; padding: 25px; border-radius: 8px; max-width: 600px; margin: auto; }
-        div { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="file"] { width: 95%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; }
-        .alert-danger { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
-        .alert-info { color: #0c5460; background-color: #d1ecf1; border-color: #bee5eb; }
+        form {
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        div {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="file"] {
+            width: 95%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
     </style>
-    
+
     <h1>Form Import Data Produk</h1>
 
     <div class="alert alert-info">
-        <strong>PENTING:</strong> Pastikan file Excel/CSV Anda memiliki header (judul kolom) persis seperti ini: `nama_produk`, `kategori`, `harga`.
+        <strong>PENTING:</strong> Pastikan file Excel/CSV Anda memiliki header (judul kolom) persis seperti ini:
+        `nama_produk`, `kategori`, `harga`.
     </div>
 
     @if ($errors->any())
@@ -37,7 +82,7 @@
             <label for="file_produk">Pilih File (Excel/CSV)</label>
             <input type="file" id="file_produk" name="file_produk" required>
         </div>
-        
+
         <button type="submit">Upload dan Import Data</button>
         <a href="{{ route('produk.index') }}" style="margin-left: 10px;">Batal</a>
     </form>

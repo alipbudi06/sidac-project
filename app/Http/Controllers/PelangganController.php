@@ -3,20 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pelanggan;
-use App\Models\Transaksi; // <-- 1. IMPORT TRANSAKSI (untuk sync)
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller; 
-use Maatwebsite\Excel\Facades\Excel; // <-- 2. IMPORT EXCEL
-use App\Imports\PelangganImport;      // <-- 3. IMPORT KELAS IMPORT
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\PelangganImport;
+use App\Models\Transaksi; // Penting untuk sync
 
 class PelangganController extends Controller
 {
     public function index(Request $request)
     {
+        // ===========================================
+        // KEMBALIKAN SEPERTI SEMULA:
+        // Sekarang kita bisa percaya kolom 'Frekuensi_Pembelian' di DB
+        // ===========================================
         $search = $request->query('search');
         
-        // Kita HANYA ambil member
+        // Hapus withCount('transaksi')
         $query = Pelanggan::where('is_member', true);
         
         if ($search) {
@@ -26,10 +30,6 @@ class PelangganController extends Controller
                   ->orWhere('Email_Pelanggan', 'LIKE', "%{$search}%");
             });
         }
-        
-        // ===================================================
-        // PERBAIKAN: Gunakan paginate() untuk memperbaiki error ".links()"
-        // ===================================================
         $pelanggans = $query->orderBy('Nama_Pelanggan', 'asc')->paginate(10);
         
         return view('pelanggan.index', [
@@ -37,10 +37,9 @@ class PelangganController extends Controller
             'search' => $search
         ]);
     }
-
+    
     public function create()
     {
-        // Logika Auto-ID dari teman Anda
         $lastPelanggan = \App\Models\Pelanggan::orderBy('ID_Pelanggan', 'desc')->first();
         $newId = !$lastPelanggan ? 'C001' : 'C' . str_pad(((int) substr($lastPelanggan->ID_Pelanggan, 1)) + 1, 3, '0', STR_PAD_LEFT);
         return view('pelanggan.create', compact('newId'));
@@ -48,7 +47,6 @@ class PelangganController extends Controller
 
     public function store(Request $request)
     {
-        // Logika Auto-ID dari teman Anda
         $lastPelanggan = \App\Models\Pelanggan::orderBy('ID_Pelanggan', 'desc')->first();
         $newId = !$lastPelanggan ? 'C001' : 'C' . str_pad(((int) substr($lastPelanggan->ID_Pelanggan, 1)) + 1, 3, '0', STR_PAD_LEFT);
 
@@ -58,7 +56,6 @@ class PelangganController extends Controller
             'Kata_Sandi' => 'required|string|max:13',
         ]);
 
-        // Logika gabungan (Merge)
         $validatedData['ID_Pelanggan'] = $newId; 
         $validatedData['is_member'] = true; 
         $validatedData['Frekuensi_Pembelian'] = 0; // Mulai dari 0
@@ -66,7 +63,6 @@ class PelangganController extends Controller
         Pelanggan::create($validatedData);
         return redirect(route('pelanggan.index'))->with('success', 'Member baru berhasil ditambahkan!');
     }
-
 
     public function edit(string $id)
     {
@@ -79,7 +75,7 @@ class PelangganController extends Controller
 
     public function update(Request $request, string $id)
     {
-        // Validasi (tanpa Frekuensi Pembelian, karena itu otomatis)
+        // Hapus 'Frekuensi_Pembelian' dari validasi agar tidak bisa di-hack
         $validatedData = $request->validate([
             'Nama_Pelanggan' => 'required|string|max:20',
             'Email_Pelanggan' => 'nullable|email|max:100|unique:pelanggan,Email_Pelanggan,' . $id . ',ID_Pelanggan',
@@ -87,7 +83,7 @@ class PelangganController extends Controller
         ]);
         
         $pelanggan = Pelanggan::findOrFail($id);
-        $pelanggan->update($validatedData);
+        $pelanggan->update($validatedData); // Hanya update data profil, bukan frekuensi
         return redirect(route('pelanggan.index'))->with('success', 'Data member berhasil diperbarui!');
     }
 
@@ -98,21 +94,11 @@ class PelangganController extends Controller
         return redirect(route('pelanggan.index'))->with('success', 'Member berhasil dihapus!');
     }
 
-    // ===================================================
-    // === FUNGSI YANG HILANG (INI PERBAIKANNYA) ===
-    // ===================================================
-
-    /**
-     * Menampilkan halaman/form untuk upload file.
-     */
     public function showImportForm()
     {
         return view('pelanggan.import');
     }
 
-    /**
-     * Memproses file yang di-upload.
-     */
     public function processImport(Request $request)
     {
         $request->validate([
@@ -122,7 +108,7 @@ class PelangganController extends Controller
         try {
             Excel::import(new PelangganImport, $request->file('file_pelanggan'));
             
-            // SINKRONISASI: Hitung ulang frekuensi setelah import
+            // SINKRONISASI: Hitung ulang setelah import juga
             $this->syncFrekuensiPembelian();
 
             return redirect(route('pelanggan.index'))->with('success', 'Data pelanggan berhasil di-import!');
@@ -131,9 +117,6 @@ class PelangganController extends Controller
         }
     }
 
-    /**
-     * Fungsi helper untuk sinkronisasi Frekuensi Pembelian
-     */
     private function syncFrekuensiPembelian()
     {
         $allPelanggans = Pelanggan::all();
