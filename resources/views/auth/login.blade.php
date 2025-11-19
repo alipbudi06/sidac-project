@@ -124,6 +124,7 @@
         </div>
 
         <button type="submit">Login</button>
+        
 
         @if ($errors->any())
             <div class="error">
