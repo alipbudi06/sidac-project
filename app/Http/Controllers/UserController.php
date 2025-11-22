@@ -39,18 +39,6 @@ class UserController extends Controller
         ]);
     }
 
-    public function create()
-    {
-        $lastUser = \App\Models\User::orderBy('ID_User', 'desc')->first();
-        if (!$lastUser) {
-            $newId = 'M001'; // Default
-        } else {
-             $num = (int) substr($lastUser->ID_User, 1);
-             $newId = 'U' . str_pad($num + 1, 3, '0', STR_PAD_LEFT); // 'U' sebagai placeholder
-        }
-        return view('user.create', compact('newId'));
-    }
-
     public function store(Request $request)
     {
         $lastUser = \App\Models\User::orderBy('ID_User', 'desc')->first();

@@ -26,7 +26,7 @@ class TransaksiController extends Controller
         $produk_id = $request->query('produk_id'); 
 
         // Mulai query, dan ambil relasinya
-        $query = Transaksi::with(['user', 'pelanggan']);
+        $query = Transaksi::with(['user']);
 
         // Terapkan filter (jika ada)
         if ($tgl_mulai) {
@@ -65,7 +65,7 @@ class TransaksiController extends Controller
      */
     public function show(string $id)
     {
-        $transaksi = Transaksi::with(['user', 'pelanggan', 'detailTransaksi.produk'])
+        $transaksi = Transaksi::with(['user', 'detailTransaksi.produk'])
                         ->findOrFail($id);
         return view('transaksi.show', ['transaksi' => $transaksi]);
     }

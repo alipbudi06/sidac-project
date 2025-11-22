@@ -12,10 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pelanggan', function (Blueprint $table) {
-            $table->string('ID_Pelanggan', 8)->primary();
+            $table->integer('ID_Pelanggan')->primary();
             $table->string('Nama_Pelanggan', 20);
             $table->string('Email_Pelanggan', 100)->nullable();
-            $table->string('Kata_Sandi', 13); // Sesuai ERD
             $table->integer('Frekuensi_Pembelian')->default(0);
             // $table->timestamps(); // ERD Anda tidak memilikinya
         });

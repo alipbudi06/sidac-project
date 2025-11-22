@@ -63,7 +63,6 @@
         </div>
         <div class="detail-box">
             <h3>Informasi Pihak</h3>
-            <p><strong>Pelanggan:</strong> {{ $transaksi->pelanggan ? $transaksi->pelanggan->Nama_Pelanggan : 'N/A' }}</auto-size-text>
             <p><strong>Kasir:</strong> {{ $transaksi->user ? $transaksi->user->Nama_User : 'N/A' }}</p>
         </div>
     </div>

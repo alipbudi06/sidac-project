@@ -20,8 +20,6 @@ class Transaksi extends Model
      */
     protected $fillable = [
         'ID_Transaksi',
-        'ID_User',
-        'ID_Pelanggan',
         'Tanggal',
         'TotalHarga',
         'Metode_Pembayaran',
@@ -43,13 +41,13 @@ class Transaksi extends Model
      * Mendefinisikan relasi 'many-to-one' (kebalikan):
      * Satu Transaksi DIMILIKI OLEH SATU Pelanggan.
      */
-    public function pelanggan()
-    {
-        // Relasi: Transaksi 'belongsTo' Pelanggan
-        // Foreign key di tabel 'transaksi' ini adalah 'ID_Pelanggan'
-        // Primary key di tabel 'pelanggan' adalah 'ID_Pelanggan'
-        return $this->belongsTo(Pelanggan::class, 'ID_Pelanggan', 'ID_Pelanggan');
-    }
+    // public function pelanggan()
+    // {
+    //     // Relasi: Transaksi 'belongsTo' Pelanggan
+    //     // Foreign key di tabel 'transaksi' ini adalah 'ID_Pelanggan'
+    //     // Primary key di tabel 'pelanggan' adalah 'ID_Pelanggan'
+    //     return $this->belongsTo(Pelanggan::class, 'ID_Pelanggan', 'ID_Pelanggan');
+    // }
 
     /**
      * Mendefinisikan relasi 'one-to-many':

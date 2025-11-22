@@ -157,7 +157,6 @@
             <tr>
                 <th>ID Transaksi</th>
                 <th>Tanggal</th>
-                <th>Pelanggan</th>
                 <th>Kasir (User)</th>
                 <th>Total Harga</th>
                 <th>Metode</th>
@@ -169,7 +168,6 @@
             <tr>
                 <td>{{ $trx->ID_Transaksi }}</td>
                 <td>{{ \Carbon\Carbon::parse($trx->Tanggal)->format('d M Y, H:i') }}</td>
-                <td>{{ $trx->pelanggan ? $trx->pelanggan->Nama_Pelanggan : 'N/A' }}</td>
                 <td>{{ $trx->user ? $trx->user->Nama_User : 'N/A' }}</td>
                 <td>Rp {{ number_format($trx->TotalHarga ?? 0, 0, ',', '.') }}</td>
                 <td>{{ $trx->Metode_Pembayaran }}</td>

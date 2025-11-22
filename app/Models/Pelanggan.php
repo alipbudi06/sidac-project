@@ -41,7 +41,6 @@ class Pelanggan extends Model
         'ID_Pelanggan',
         'Nama_Pelanggan',
         'Email_Pelanggan',
-        'Kata_Sandi',
         'Frekuensi_Pembelian',
     ];
 

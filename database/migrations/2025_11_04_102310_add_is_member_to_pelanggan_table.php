@@ -11,7 +11,7 @@ return new class extends Migration
             // Tambahkan kolom baru 'is_member'
             // default(true) berarti semua pelanggan yang sudah ada
             // akan otomatis dianggap sebagai 'Member'.
-            $table->boolean('is_member')->default(true)->after('Kata_Sandi');
+            $table->boolean('is_member')->default(true)->after('Email_Pelanggan');
         });
     }
 

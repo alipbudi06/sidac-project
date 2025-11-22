@@ -33,9 +33,6 @@
             <a href="{{ route('pelanggan.import.form') }}" class="btn btn-import">
                 <i class="fa fa-file-import"></i> Import File
             </a>
-            @if (Auth::check() && Auth::user()->Role === 'Manajer Operasional')
-                <a href="{{ route('pelanggan.create') }}" class="btn btn-tambah">Tambah Pelanggan Baru</a>
-            @endif
         </div>
     </div>
     

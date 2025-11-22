@@ -38,12 +38,12 @@ class PelangganController extends Controller
         ]);
     }
     
-    public function create()
-    {
-        $lastPelanggan = \App\Models\Pelanggan::orderBy('ID_Pelanggan', 'desc')->first();
-        $newId = !$lastPelanggan ? 'C001' : 'C' . str_pad(((int) substr($lastPelanggan->ID_Pelanggan, 1)) + 1, 3, '0', STR_PAD_LEFT);
-        return view('pelanggan.create', compact('newId'));
-    }
+    // public function create()
+    // {
+    //     $lastPelanggan = \App\Models\Pelanggan::orderBy('ID_Pelanggan', 'desc')->first();
+    //     $newId = !$lastPelanggan ? 'C001' : 'C' . str_pad(((int) substr($lastPelanggan->ID_Pelanggan, 1)) + 1, 3, '0', STR_PAD_LEFT);
+    //     return view('pelanggan.create', compact('newId'));
+    // }
 
     public function store(Request $request)
     {
@@ -53,12 +53,11 @@ class PelangganController extends Controller
         $validatedData = $request->validate([
             'Nama_Pelanggan' => 'required|string|max:20',
             'Email_Pelanggan' => 'nullable|email|max:100|unique:pelanggan,Email_Pelanggan',
-            'Kata_Sandi' => 'required|string|max:13',
         ]);
 
-        $validatedData['ID_Pelanggan'] = $newId; 
-        $validatedData['is_member'] = true; 
-        $validatedData['Frekuensi_Pembelian'] = 0; // Mulai dari 0
+        $validatedData['ID_Pelanggan'] = $newId;
+        $validatedData['is_member'] = true;
+        $validatedData['Frekuensi_Pembelian'] = 0;
 
         Pelanggan::create($validatedData);
         return redirect(route('pelanggan.index'))->with('success', 'Member baru berhasil ditambahkan!');
@@ -79,7 +78,6 @@ class PelangganController extends Controller
         $validatedData = $request->validate([
             'Nama_Pelanggan' => 'required|string|max:20',
             'Email_Pelanggan' => 'nullable|email|max:100|unique:pelanggan,Email_Pelanggan,' . $id . ',ID_Pelanggan',
-            'Kata_Sandi' => 'required|string|max:13',
         ]);
         
         $pelanggan = Pelanggan::findOrFail($id);

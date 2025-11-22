@@ -17,7 +17,7 @@
     <h1>Form Import Data Pelanggan</h1>
 
     <div class="alert alert-info">
-        <strong>PENTING:</strong> Pastikan file Excel/CSV Anda memiliki header (judul kolom) persis seperti ini: `nama_pelanggan`, `email_pelanggan`, `kata_sandi`.
+        <strong>PENTING:</strong> Pastikan file Excel/CSV Anda memiliki header (judul kolom) persis seperti ini: `nama_pelanggan`, `email_pelanggan`.
     </div>
 
     @if ($errors->any())

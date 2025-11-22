@@ -116,7 +116,6 @@
                     <a href="{{ route('produk.import.form') }}" class="btn btn-import">
                         <i class="fa fa-file-import"></i> Import File
                     </a>
-                    <a href="{{ route('produk.create') }}" class="btn btn-tambah">+ Tambah</a>
                 @endif
             </div>
         </div>

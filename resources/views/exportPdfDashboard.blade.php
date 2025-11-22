@@ -29,10 +29,24 @@
 <body>
 
     <h2>Dashboard SIDAC</h2>
+
     <p>Diunduh oleh: <strong>{{ $namaUser }}</strong></p>
+
     <p>Periode:
-        <strong>{{ $tgl_mulai ?? '-' }}</strong> s/d
-        <strong>{{ $tgl_selesai ?? '-' }}</strong>
+        <strong>{{ $tgl_mulai ? $tgl_mulai : '-' }}</strong> 
+        s/d 
+        <strong>{{ $tgl_selesai ? $tgl_selesai : '-' }}</strong>
+    </p>
+
+    <p>
+        Produk:
+        <strong>
+            @if($produk_filter)
+                {{ $produkNama }}
+            @else
+                Semua Produk
+            @endif
+        </strong>
     </p>
 
     <hr>
@@ -41,45 +55,68 @@
     <table>
         <tr>
             <td><strong>Total Transaksi</strong></td>
-            <td>{{ $statistik->total_transaksi }}</td>
+            <td>
+                @if ($statistik->total_transaksi > 0)
+                    {{ $statistik->total_transaksi }}
+                @else
+                    Tidak ada transaksi pada periode ini
+                @endif
+            </td>
         </tr>
+
         <tr>
             <td><strong>Total Pendapatan</strong></td>
-            <td>Rp {{ number_format($statistik->total_pendapatan, 0, ',', '.') }}</td>
+            <td>
+                @if ($statistik->total_pendapatan > 0)
+                    Rp {{ number_format($statistik->total_pendapatan, 0, ',', '.') }}
+                @else
+                    Tidak ada pendapatan pada periode ini
+                @endif
+            </td>
         </tr>
     </table>
 
     <hr>
 
     <h3>Grafik Transaksi</h3>
-    @if ($chartImagePath)
-        <img src="{{ public_path($chartImagePath) }}" width="600">
+
+    @if ($chartImagePath && file_exists($chartImagePath))
+    <img src="file://{{ $chartImagePath }}" width="600">
     @else
         <p><i>Grafik tidak tersedia</i></p>
     @endif
+
 
     <hr>
 
     <h3>Top 5 Produk Terlaris</h3>
     <table>
-        @foreach ($topProduk as $p)
+        @forelse ($topProduk as $p)
             <tr>
                 <td>{{ $p->Nama_Produk }}</td>
                 <td>{{ $p->total_terjual }} terjual</td>
             </tr>
-        @endforeach
+        @empty
+            <tr>
+                <td colspan="2"><i>Tidak ada produk terjual pada periode ini</i></td>
+            </tr>
+        @endforelse
     </table>
 
     <hr>
 
     <h3>Top 5 Member Loyalitas</h3>
     <table>
-        @foreach ($topPelanggan as $c)
+        @forelse ($topPelanggan as $c)
             <tr>
                 <td>{{ $c->Nama_Pelanggan }}</td>
                 <td>{{ $c->total_pembelian }} pembelian</td>
             </tr>
-        @endforeach
+        @empty
+            <tr>
+                <td colspan="2"><i>Tidak ada data member pada periode ini</i></td>
+            </tr>
+        @endforelse
     </table>
 
 </body>

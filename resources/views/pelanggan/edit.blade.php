@@ -37,10 +37,6 @@
             <label for="Email_Pelanggan">Email (Opsional)</label>
             <input type="email" id="Email_Pelanggan" name="Email_Pelanggan" value="{{ $pelanggan->Email_Pelanggan }}">
         </div>
-        <div>
-            <label for="Kata_Sandi">Kata Sandi</label>
-            <input type="text" id="Kata_Sandi" name="Kata_Sandi" value="{{ $pelanggan->Kata_Sandi }}" required>
-        </div>
         
         <!-- DI-DISABLE AGAR TIDAK BISA DIEDIT MANUAL -->
         <div>

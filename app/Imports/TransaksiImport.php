@@ -3,51 +3,91 @@
 namespace App\Imports;
 
 use App\Models\Transaksi;
-use App\Models\Pelanggan; // <-- 1. IMPORT MODEL PELANGGAN
-use Illuminate\Support\Collection; // <-- 2. IMPORT COLLECTION
-use Maatwebsite\Excel\Concerns\ToCollection; // <-- 3. UBAH DARI ToModel
+use App\Models\DetailTransaksi;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Facades\DB; // <-- 4. IMPORT DB (untuk keamanan)
+use Carbon\Carbon;
 
-// 5. Ubah 'ToModel' menjadi 'ToCollection'
-class TransaksiImport implements ToCollection, WithHeadingRow 
+class TransaksiImport implements ToCollection, WithHeadingRow
 {
-    /**
-    * @param Collection $rows
-    */
+    protected $counter = null;
+
     public function collection(Collection $rows)
     {
-        // Gunakan Transaksi Database agar jika 1 baris gagal, semua dibatalkan
-        DB::beginTransaction();
-        try {
-            
-            foreach ($rows as $row) 
-            {
-                // 6. Buat Transaksi (sama seperti sebelumnya)
-                Transaksi::create([
-                    'ID_Transaksi'      => $row['id_transaksi'],
-                    'ID_User'           => $row['id_user'],
-                    'ID_Pelanggan'      => $row['id_pelanggan'],
-                    'Tanggal'           => \Carbon\Carbon::parse($row['tanggal']),
-                    'TotalHarga'        => $row['totalharga'],
-                    'Metode_Pembayaran' => $row['metode_pembayaran'],
+        $lastDetail = DetailTransaksi::selectRaw("MAX(CAST(SUBSTR(ID_DetailTransaksi, 2) AS INTEGER)) as max_num")
+            ->value('max_num');
+        $this->counter = $lastDetail ? intval($lastDetail) : 0;
+
+        Log::info("=== Mulai Import Transaksi ===");
+
+        Log::info("Last ID_DetailTransaksi", [
+            'last_detail' => $lastDetail,
+        ]);
+
+        foreach ($rows as $index => $row) {
+
+            try {
+                Log::info("Proses baris", [
+                    'index' => $index,
+                    'row_data' => $row->toArray()
                 ]);
 
-                // ===================================================
-                // 7. TAMBAHKAN LOGIKA INCREMENT (INI PERBAIKANNYA)
-                // ===================================================
-                $pelanggan = Pelanggan::find($row['id_pelanggan']);
-                if ($pelanggan) {
-                    $pelanggan->increment('Frekuensi_Pembelian');
+                if (!$row['id_transaksi']) {
+                    Log::error("ID_Transaksi kosong", [
+                        'index' => $index,
+                        'row' => $row->toArray()
+                    ]);
+                    continue;
                 }
-            }
 
-            DB::commit(); // Simpan semua perubahan jika loop berhasil
-        
-        } catch (\Exception $e) {
-            DB::rollBack(); // Batalkan semua jika ada error
-            // Lempar error kembali ke Controller
-            throw $e; 
+                $transaksi = Transaksi::firstOrCreate(
+                    ['ID_Transaksi' => $row['id_transaksi']],
+                    [
+                        'Tanggal'           => Carbon::parse($row['tanggal']),
+                        'TotalHarga'        => $row['totalharga'],
+                        'Metode_Pembayaran' => $row['metode_pembayaran'],
+                    ]
+                );
+
+                Log::info("Transaksi Created / Found", [
+                    'ID_Transaksi' => $transaksi->ID_Transaksi
+                ]);
+
+                $this->counter++;
+                $newDetailId = 'D' . str_pad($this->counter, 4, '0', STR_PAD_LEFT);
+
+                Log::info("Generated Detail ID", [
+                    'ID_DetailTransaksi' => $newDetailId
+                ]);
+
+                DetailTransaksi::create([
+                    'ID_DetailTransaksi' => $newDetailId,
+                    'ID_Transaksi'       => $transaksi->ID_Transaksi,
+                    'ID_Produk'          => $row['id_produk'],
+                    'Jumlah_Produk'      => $row['jumlah_produk'],
+                    'Diskon'             => $row['diskon'] ?? 0,
+                    'Service_Charge'     => $row['service_charge'] ?? 0,
+                    'SubTotal'           => $row['subtotal'],
+                ]);
+
+                Log::info("Detail Created", [
+                    'ID_DetailTransaksi' => $newDetailId
+                ]);
+            } catch (\Exception $e) {
+
+                Log::error("ERROR di baris", [
+                    'index' => $index,
+                    'row' => $row->toArray(),
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+
+                throw $e;
+            }
         }
+
+        Log::info("=== Import selesai tanpa error ===");
     }
 }

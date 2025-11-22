@@ -110,9 +110,6 @@
             <a href="{{ route('user.import.form') }}" class="btn btn-import">
                 <i class="fa fa-file-import"></i> Import File
             </a>
-            <a href="{{ route('user.create') }}" class="btn btn-tambah">
-                + Tambah
-            </a>
         </div>
     </div>
 

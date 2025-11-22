@@ -295,6 +295,11 @@
             <form method="POST" action="{{ route('dashboard.export.pdf') }}" id="exportForm" target="_blank">
                 @csrf
                 <input type="hidden" name="chart_image" id="chart_image">
+
+                <input type="hidden" name="tgl_mulai" value="{{ request('tgl_mulai') }}">
+                <input type="hidden" name="tgl_selesai" value="{{ request('tgl_selesai') }}">
+                <input type="hidden" name="produk_id" value="{{ request('produk_id') }}">
+
                 <button type="submit" class="btn-export">
                     <i class="fa fa-file-pdf"></i> Ekspor PDF
                 </button>
@@ -372,7 +377,7 @@
     </section>
 
     <section class="card chart-card">
-        <h3>Grafik Pendapatan</h3>
+        <!-- <h3>Grafik Pendapatan</h3> -->
         <div class="chart-placeholder">
             <canvas id="chartTransaksi"></canvas>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -473,7 +478,7 @@
                                     {{ $pelanggan->Nama_Pelanggan }}
                                 </a>
                             </td>
-                            <td><strong>{{ $pelanggan->total_pembelian }}</strong> pembelian</td>
+                            <td><strong>{{ $pelanggan->Frekuensi_Pembelian }}</strong> pembelian</td>
                         </tr>
                     @empty
                         <tr>

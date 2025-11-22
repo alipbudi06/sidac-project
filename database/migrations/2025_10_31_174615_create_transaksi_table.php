@@ -11,16 +11,12 @@ return new class extends Migration
         Schema::create('transaksi', function (Blueprint $table) {
             $table->string('ID_Transaksi', 8)->primary();
             $table->string('ID_User', 8);
-            $table->string('ID_Pelanggan', 8);
             $table->dateTime('Tanggal');
             $table->decimal('TotalHarga', 20, 0);
             $table->enum('Metode_Pembayaran', ['QRIS', 'Cash']);
 
             // Relasi Foreign Key
             $table->foreign('ID_User')->references('ID_User')->on('users');
-            
-            // INI PERBAIKANNYA:
-            $table->foreign('ID_Pelanggan')->references('ID_Pelanggan')->on('pelanggan')->onDelete('cascade');
         });
     }
 

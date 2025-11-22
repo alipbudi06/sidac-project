@@ -37,13 +37,6 @@ class ProdukController extends Controller
         ]);
     }
 
-    public function create()
-    {
-        $lastProduk = \App\Models\Produk::orderBy('ID_Produk', 'desc')->first();
-        $newId = $lastProduk ? 'P' . str_pad(((int) substr($lastProduk->ID_Produk, 1)) + 1, 3, '0', STR_PAD_LEFT) : 'P001';
-        return view('produk.create', compact('newId'));
-    }
-
     public function store(Request $request)
     {
         $lastProduk = \App\Models\Produk::orderBy('ID_Produk', 'desc')->first();

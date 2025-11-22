@@ -30,7 +30,7 @@ class SidacSeeder extends Seeder
 
         // 2. Buat User
         $manajer = User::create([ 'ID_User' => 'M001', 'Role' => 'Manajer Operasional', 'Nama_User' => 'Admin Manajer', 'Username' => 'manajer', 'Email_User' => 'manajer@sidac.com', 'Password' => Hash::make('12345') ]);
-        $pegawai = User::create([ 'ID_User' => 'P001', 'Role' => 'Pegawai', 'Nama_User' => 'Kasir Pegawai', 'Username' => 'pegawai', 'Email_User' => 'pegawai@sidac.com', 'Password' => Hash::make('12345') ]);
+        $pegawai = User::create([ 'ID_User' => 'K001', 'Role' => 'Pegawai', 'Nama_User' => 'Kasir Pegawai', 'Username' => 'pegawai', 'Email_User' => 'pegawai@sidac.com', 'Password' => Hash::make('12345') ]);
         $users = [$manajer, $pegawai];
 
         // 3. Buat Produk
@@ -43,24 +43,22 @@ class SidacSeeder extends Seeder
 
         // 4. Buat Pelanggan (Member)
         // Catatan: Kita set Frekuensi_Pembelian ke 0 dulu, nanti dihitung ulang di akhir
-        $c1 = Pelanggan::create(['ID_Pelanggan' => 'C001', 'Nama_Pelanggan' => 'Budi Santoso', 'Email_Pelanggan' => 'budi@mail.com', 'Kata_Sandi' => '123', 'is_member' => true, 'Frekuensi_Pembelian' => 0]);
-        $c2 = Pelanggan::create(['ID_Pelanggan' => 'C002', 'Nama_Pelanggan' => 'Citra Lestari', 'Email_Pelanggan' => 'citra@mail.com', 'Kata_Sandi' => '123', 'is_member' => true, 'Frekuensi_Pembelian' => 0]);
-        $c3 = Pelanggan::create(['ID_Pelanggan' => 'C003', 'Nama_Pelanggan' => 'David Kim', 'Email_Pelanggan' => 'david@mail.com', 'Kata_Sandi' => '123', 'is_member' => true, 'Frekuensi_Pembelian' => 0]);
-        $c4 = Pelanggan::create(['ID_Pelanggan' => 'C004', 'Nama_Pelanggan' => 'Elisa Putri', 'Email_Pelanggan' => 'elisa@mail.com', 'Kata_Sandi' => '123', 'is_member' => true, 'Frekuensi_Pembelian' => 0]);
-        $c5 = Pelanggan::create(['ID_Pelanggan' => 'C005', 'Nama_Pelanggan' => 'Fajar Nugroho', 'Email_Pelanggan' => 'fajar@mail.com', 'Kata_Sandi' => '123', 'is_member' => true, 'Frekuensi_Pembelian' => 0]);
+        $c1 = Pelanggan::create(['ID_Pelanggan' => '1', 'Nama_Pelanggan' => 'Budi Santoso', 'Email_Pelanggan' => 'budi@mail.com', 'is_member' => true, 'Frekuensi_Pembelian' => 0]);
+        $c2 = Pelanggan::create(['ID_Pelanggan' => '2', 'Nama_Pelanggan' => 'Citra Lestari', 'Email_Pelanggan' => 'citra@mail.com', 'is_member' => true, 'Frekuensi_Pembelian' => 0]);
+        $c3 = Pelanggan::create(['ID_Pelanggan' => '3', 'Nama_Pelanggan' => 'David Kim', 'Email_Pelanggan' => 'david@mail.com', 'is_member' => true, 'Frekuensi_Pembelian' => 0]);
+        $c4 = Pelanggan::create(['ID_Pelanggan' => '4', 'Nama_Pelanggan' => 'Elisa Putri', 'Email_Pelanggan' => 'elisa@mail.com', 'is_member' => true, 'Frekuensi_Pembelian' => 0]);
+        $c5 = Pelanggan::create(['ID_Pelanggan' => '5', 'Nama_Pelanggan' => 'Fajar Nugroho', 'Email_Pelanggan' => 'fajar@mail.com', 'is_member' => true, 'Frekuensi_Pembelian' => 0]);
         $pelanggans = [$c1, $c2, $c3, $c4, $c5];
 
         // 5. Buat Transaksi & Detail Transaksi (Palsu)
         for ($i = 1; $i <= 50; $i++) {
             $total_transaksi = 0;
             $random_user = $users[array_rand($users)];
-            $random_pelanggan = $pelanggans[array_rand($pelanggans)];
             $random_timestamp = time() - rand(0, 90 * 24 * 60 * 60); 
 
             $transaksi = Transaksi::create([
                 'ID_Transaksi' => 'TRX' . str_pad($i, 4, '0', STR_PAD_LEFT),
                 'ID_User' => $random_user->ID_User,
-                'ID_Pelanggan' => $random_pelanggan->ID_Pelanggan,
                 'Tanggal' => date('Y-m-d H:i:s', $random_timestamp),
                 'TotalHarga' => 0, 
                 'Metode_Pembayaran' => (rand(0, 1) ? 'QRIS' : 'Cash')

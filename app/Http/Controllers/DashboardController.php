@@ -58,22 +58,13 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        $topPelanggan = DB::table('pelanggan as pl')
-            ->join('transaksi as t', 'pl.ID_Pelanggan', '=', 't.ID_Pelanggan')
-            ->join('detail_transaksi as dt', 't.ID_Transaksi', '=', 'dt.ID_Transaksi')
-            ->where('pl.is_member', 1)
-            ->whereBetween(DB::raw('DATE(t.Tanggal)'), [$tgl_mulai, $tgl_selesai]);
-
-        if ($produk_filter) {
-            $topPelanggan->where('dt.ID_Produk', $produk_filter);
-        }
-
-        $topPelanggan = $topPelanggan
-            ->select('pl.ID_Pelanggan', 'pl.Nama_Pelanggan', DB::raw('COUNT(t.ID_Transaksi) as total_pembelian'))
-            ->groupBy('pl.ID_Pelanggan', 'pl.Nama_Pelanggan')
-            ->orderByDesc('total_pembelian')
+        $topPelanggan = DB::table('pelanggan')
+            ->where('is_member', 1)
+            ->orderByDesc('Frekuensi_Pembelian')
             ->limit(5)
             ->get();
+
+
 
         $queryGrafik = DB::table('transaksi as t')
             ->leftJoin('detail_transaksi as dt', 't.ID_Transaksi', '=', 'dt.ID_Transaksi')
@@ -138,16 +129,21 @@ class DashboardController extends Controller
     {
         return DB::table('pelanggan as pl')
             ->join('transaksi as t', 'pl.ID_Pelanggan', '=', 't.ID_Pelanggan')
-            ->join('detail_transaksi as dt', 't.ID_Transaksi', '=', 'dt.ID_Transaksi')
             ->where('pl.is_member', 1)
             ->when($tgl_mulai, fn($q) => $q->whereDate('t.Tanggal', '>=', $tgl_mulai))
             ->when($tgl_selesai, fn($q) => $q->whereDate('t.Tanggal', '<=', $tgl_selesai))
-            ->select('pl.ID_Pelanggan', 'pl.Nama_Pelanggan', DB::raw('COUNT(t.ID_Transaksi) as total_pembelian'))
+            ->select(
+                'pl.ID_Pelanggan',
+                'pl.Nama_Pelanggan',
+                DB::raw('COUNT(DISTINCT t.ID_Transaksi) as total_pembelian')
+            )
             ->groupBy('pl.ID_Pelanggan', 'pl.Nama_Pelanggan')
             ->orderByDesc('total_pembelian')
             ->limit(5)
             ->get();
     }
+
+
 
     private function getGrafikTransaksi($tgl_mulai, $tgl_selesai, $produk_filter)
     {
@@ -167,47 +163,54 @@ class DashboardController extends Controller
 
 
     public function exportPDF(Request $request)
-    {
-        $namaUser = Auth::user()->Nama_User;
-        $roleUser = Auth::user()->Role;
+{
+    $chartImagePath = null;
 
-        $tgl_mulai = $request->tgl_mulai;
-        $tgl_selesai = $request->tgl_selesai;
-        $produk_filter = $request->produk_id;
+    $namaUser = Auth::user()->Nama_User;
+    $roleUser = Auth::user()->Role;
 
-        $statistik = $this->getStatisticData($tgl_mulai, $tgl_selesai, $produk_filter);
-        $topProduk = $this->getTopProduk($tgl_mulai, $tgl_selesai, $produk_filter);
-        $topPelanggan = $this->getTopPelanggan($tgl_mulai, $tgl_selesai);
-        $grafikTransaksi = $this->getGrafikTransaksi($tgl_mulai, $tgl_selesai, $produk_filter);
+    $tgl_mulai = $request->tgl_mulai;
+    $tgl_selesai = $request->tgl_selesai;
+    $produk_filter = $request->produk_id;
 
-        Log::info("Receive chart base64, size: " . strlen($request->chart_image));
-        if ($request->chart_image) {
-            $base64 = preg_replace('#^data:image/\w+;base64,#i', '', $request->chart_image);
-            $imageData = base64_decode($base64);
-            
-            $filename = 'chart-' . time() . '.png';
-            $path = storage_path('app/public/' . $filename);
-            
-            file_put_contents($path, $imageData);
-            
-            $chartImagePath = 'storage/' . $filename;
-            Log::info("chartImagePath: " . $chartImagePath);
-        }
-
-        // View PDF
-        $pdf = Pdf::loadView('exportPdfDashboard', [
-            'namaUser'        => $namaUser,
-            'roleUser'        => $roleUser,
-            'statistik'       => $statistik,
-            'topProduk'       => $topProduk,
-            'topPelanggan'    => $topPelanggan,
-            'grafikTransaksi' => $grafikTransaksi,
-            'chartImagePath'  => $chartImagePath,
-            'tgl_mulai'       => $tgl_mulai,
-            'tgl_selesai'     => $tgl_selesai,
-            'produk_filter'   => $produk_filter,
-        ]);
-
-        return $pdf->stream('Dashboard-SIDAC.pdf');
+    $produkNama = null;
+    if ($produk_filter) {
+        $produkNama = Produk::where('ID_Produk', $produk_filter)->value('Nama_Produk');
     }
+
+    $statistik = $this->getStatisticData($tgl_mulai, $tgl_selesai, $produk_filter);
+    $topProduk = $this->getTopProduk($tgl_mulai, $tgl_selesai, $produk_filter);
+    $topPelanggan = $this->getTopPelanggan($tgl_mulai, $tgl_selesai);
+    $grafikTransaksi = $this->getGrafikTransaksi($tgl_mulai, $tgl_selesai, $produk_filter);
+
+    // SIMPAN FILE GRAFIK
+    if ($request->chart_image) {
+        $base64 = preg_replace('#^data:image/\w+;base64,#i', '', $request->chart_image);
+        $imageData = base64_decode($base64);
+
+        $filename = 'chart-' . time() . '.png';
+        $absolutePath = storage_path('app/public/' . $filename);
+
+        file_put_contents($absolutePath, $imageData);
+
+        // Gunakan path ABSOLUT untuk Dompdf
+        $chartImagePath = $absolutePath;
+    }
+
+    $pdf = Pdf::loadView('exportPdfDashboard', [
+        'namaUser'        => $namaUser,
+        'roleUser'        => $roleUser,
+        'statistik'       => $statistik,
+        'topProduk'       => $topProduk,
+        'topPelanggan'    => $topPelanggan,
+        'grafikTransaksi' => $grafikTransaksi,
+        'chartImagePath'  => $chartImagePath,
+        'tgl_mulai'       => $tgl_mulai,
+        'tgl_selesai'     => $tgl_selesai,
+        'produk_filter'   => $produk_filter,
+        'produkNama'      => $produkNama,
+    ]);
+
+    return $pdf->stream('Dashboard-SIDAC.pdf');
+}
 }

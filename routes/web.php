@@ -29,7 +29,6 @@ Route::middleware(['auth'])->group(function () {
     // 3. Rute CRUD Produk
     // Route::resource('produk', ProdukController::class);
     Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
-    Route::get('/produk/create', [ProdukController::class, 'create'])->name('produk.create');
     Route::post('/produk', [ProdukController::class, 'store'])->name('produk.store');
     Route::get('/produk/{id}/edit', [ProdukController::class, 'edit'])->name('produk.edit');
     Route::put('/produk/{id}', [ProdukController::class, 'update'])->name('produk.update');
@@ -41,7 +40,6 @@ Route::middleware(['auth'])->group(function () {
     // 4. Rute CRUD Pelanggan 
     // Route::resource('pelanggan', PelangganController::class);
     Route::get('/pelanggan', [PelangganController::class, 'index'])->name('pelanggan.index');
-    Route::get('/pelanggan/create', [PelangganController::class, 'create'])->name('pelanggan.create');
     Route::post('/pelanggan', [PelangganController::class, 'store'])->name('pelanggan.store');
     Route::get('/pelanggan/{id}/edit', [PelangganController::class, 'edit'])->name('pelanggan.edit');
     Route::put('/pelanggan/{id}', [PelangganController::class, 'update'])->name('pelanggan.update');
@@ -52,7 +50,6 @@ Route::middleware(['auth'])->group(function () {
     //  5. Rute CRUD User
     // Route::resource('user', UserController::class);
     Route::get('/user', [UserController::class, 'index'])->name('user.index');
-    Route::get('/user/create', [UserController::class, 'create'])->name('user.create');
     Route::post('/user', [UserController::class, 'store'])->name('user.store');
     Route::get('/user/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
     Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
