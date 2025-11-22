@@ -100,7 +100,7 @@ class PelangganController extends Controller
     public function processImport(Request $request)
     {
         $request->validate([
-            'file_pelanggan' => 'required|mimes:xls,xlsx,csv'
+            'file_pelanggan' => 'required|mimes:xls,xlsx,csv,txt'
         ]);
 
         try {
@@ -115,12 +115,15 @@ class PelangganController extends Controller
         }
     }
 
-    private function syncFrekuensiPembelian()
+        private function syncFrekuensiPembelian()
     {
         $allPelanggans = Pelanggan::all();
         foreach ($allPelanggans as $pelanggan) {
-            $count = Transaksi::where('ID_Pelanggan', $pelanggan->ID_Pelanggan)->count();
-            $pelanggan->Frekuensi_Pembelian = $count;
+            $countTransaksi = Transaksi::where('ID_Pelanggan', $pelanggan->ID_Pelanggan)->count();
+
+            $pelanggan->Frekuensi_Pembelian =
+                (int) $pelanggan->Frekuensi_Pembelian;
+
             $pelanggan->save();
         }
     }

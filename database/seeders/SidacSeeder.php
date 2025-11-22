@@ -57,7 +57,7 @@ class SidacSeeder extends Seeder
             $random_timestamp = time() - rand(0, 90 * 24 * 60 * 60); 
 
             $transaksi = Transaksi::create([
-                'ID_Transaksi' => 'TRX' . str_pad($i, 4, '0', STR_PAD_LEFT),
+                'ID_Transaksi' => uniqid('SIDAC'),
                 'ID_User' => $random_user->ID_User,
                 'Tanggal' => date('Y-m-d H:i:s', $random_timestamp),
                 'TotalHarga' => 0, 

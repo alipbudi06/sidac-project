@@ -14,6 +14,13 @@ class TransaksiImport implements ToCollection, WithHeadingRow
 {
     protected $counter = null;
 
+    public function getCsvSettings(): array
+    {
+        return [
+            'delimiter' => ';'
+        ];
+    }
+
     public function collection(Collection $rows)
     {
         $lastDetail = DetailTransaksi::selectRaw("MAX(CAST(SUBSTR(ID_DetailTransaksi, 2) AS INTEGER)) as max_num")
@@ -48,6 +55,7 @@ class TransaksiImport implements ToCollection, WithHeadingRow
                         'Tanggal'           => Carbon::parse($row['tanggal']),
                         'TotalHarga'        => $row['totalharga'],
                         'Metode_Pembayaran' => $row['metode_pembayaran'],
+                        'ID_User'           => $row['id_user'],
                     ]
                 );
 

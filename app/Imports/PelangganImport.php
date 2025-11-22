@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\Pelanggan;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -15,21 +16,24 @@ class PelangganImport implements ToCollection, WithHeadingRow
             'delimiter' => ';'
         ];
     }
+
     public function collection(Collection $rows)
     {
-        foreach ($rows as $row) 
-        {
-            // Lewati baris jika tidak ada nama
+        foreach ($rows as $row) {
             if (!$row['nama_pelanggan']) continue;
-
-            // Lewati baris kalau tidak ada ID_Pelanggan
             if (!$row['id_pelanggan']) continue;
 
-            // UPDATE jika ID sudah ada, INSERT jika belum
-            Pelanggan::updateOrCreate(
-                ['ID_Pelanggan' => $row['id_pelanggan']],  // kondisi pencocokan
+            $importFreq = (int) ($row['frekuensi_pembelian'] ?? 0);
 
-                [   // data yang akan diisi/diupdate
+            $existing = Pelanggan::where('ID_Pelanggan', $row['id_pelanggan'])->first();
+
+            $newFreq = $existing
+                ? (int) $existing->Frekuensi_Pembelian + $importFreq
+                : $importFreq;
+
+            Pelanggan::updateOrCreate(
+                ['ID_Pelanggan' => $row['id_pelanggan']],
+                [
                     'Nama_Pelanggan'        => $row['nama_pelanggan'],
                     'Email_Pelanggan'       => $row['email_pelanggan'] ?? null,
                     'is_member'             => true,
