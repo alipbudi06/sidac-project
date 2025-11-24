@@ -8,7 +8,16 @@
         form { background: #fff; padding: 25px; border-radius: 8px; max-width: 600px; margin: auto; }
         div { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input { width: 95%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        
+        /* Tambahkan 'select' di sini agar dropdown gayanya sama dengan input */
+        input, select { 
+            width: 95%; 
+            padding: 8px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+            background-color: #fff; /* Pastikan background putih */
+        }
+
         .form-actions {
             display: flex;
             gap: 10px;
@@ -40,7 +49,7 @@
             color: white;
             padding: 10px 17px;
             border: none;
-            border-radius: 4px; /* <<< bikin sudutnya tumpul */
+            border-radius: 4px; 
             text-decoration: none;
             display: inline-block;
             cursor: pointer;
@@ -70,16 +79,27 @@
         @method('PUT')
         <div>
             <label for="ID_Produk">ID Produk</label>
-            <input type="text" id="ID_Produk" name="ID_Produk" value="{{ $produk->ID_Produk }}" readonly>
+            <input type="text" id="ID_Produk" name="ID_Produk" value="{{ $produk->ID_Produk }}" readonly style="background-color: #e9ecef; cursor: not-allowed;">
         </div>
         <div>
             <label for="Nama_Produk">Nama Produk</label>
             <input type="text" id="Nama_Produk" name="Nama_Produk" value="{{ $produk->Nama_Produk }}" required>
         </div>
+        
+        {{-- BAGIAN INI SUDAH DIUBAH JADI DROPDOWN --}}
         <div>
             <label for="Kategori">Kategori</label>
-            <input type="text" id="Kategori" name="Kategori" value="{{ $produk->Kategori }}" required>
+            <select id="Kategori" name="Kategori" required>
+                <option value="">-- Pilih Kategori --</option>
+                <option value="Basic" {{ $produk->Kategori == 'Basic' ? 'selected' : '' }}>Basic</option>
+                <option value="Flavoured" {{ $produk->Kategori == 'Flavoured' ? 'selected' : '' }}>Flavoured</option>
+                <option value="Signature" {{ $produk->Kategori == 'Signature' ? 'selected' : '' }}>Signature</option>
+                <option value="Tea-Based" {{ $produk->Kategori == 'Tea-Based' ? 'selected' : '' }}>Tea-Based</option>
+                <option value="Powder-Based" {{ $produk->Kategori == 'Powder-Based' ? 'selected' : '' }}>Powder-Based</option>
+                <option value="Refreshments" {{ $produk->Kategori == 'Refreshments' ? 'selected' : '' }}>Refreshments</option>
+            </select>
         </div>
+
         <div>
             <label for="Harga">Harga</label>
             <input type="number" id="Harga" name="Harga" value="{{ $produk->Harga }}" required>

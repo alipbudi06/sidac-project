@@ -13,12 +13,14 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             background-color: #f4f7f6;
+            overflow: hidden; 
         }
 
         .app-layout {
             display: flex;
-            min-height: 100vh;
-            transition: all 0.3s ease;
+            height: 100vh; 
+            width: 100vw;
+            overflow: hidden;
         }
 
         /* === SIDEBAR === */
@@ -27,35 +29,48 @@
             width: 250px;
             background-color: #0d6efd;
             color: white;
-            padding: 20px;
             display: flex;
             flex-direction: column;
             transition: all 0.3s ease;
             position: relative;
+            flex-shrink: 0; /* Sidebar tidak boleh mengecil */
+            height: 100%; /* Full tinggi layar */
         }
 
         .sidebar.collapsed {
             width: 70px;
-            /* text-align: center; */
         }
 
         .sidebar-header {
             font-size: 1.5em;
             font-weight: bold;
             text-align: center;
-            margin-bottom: 30px;
+            padding: 20px; 
+            margin-bottom: 10px;
             transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(255,255,255,0.1); /* Garis pemisah tipis */
+        }
+
+        .sidebar.collapsed .sidebar-header span.logo-text {
+            display: none;
         }
 
         .sidebar-nav {
             list-style: none;
-            padding: 0;
+            padding: 0 10px; /* Padding kiri kanan */
             margin: 0;
-            flex-grow: 1;
+            flex-grow: 1; 
+            overflow-y: auto; 
+        }
+        
+        /* Sembunyikan scrollbar sidebar agar cantik */
+        .sidebar-nav::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
         }
 
         .sidebar-nav li {
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .sidebar-nav a {
@@ -67,10 +82,12 @@
             border-radius: 6px;
             font-size: 1em;
             transition: background-color 0.2s, padding 0.3s ease;
+            white-space: nowrap; /* Mencegah teks turun baris */
         }
 
         .sidebar.collapsed a {
             justify-content: center;
+            padding: 12px 0;
         }
 
         .sidebar.collapsed a span {
@@ -80,10 +97,13 @@
         .sidebar-nav a:hover,
         .sidebar-nav a.active {
             background-color: #0b5ed7;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .sidebar-nav a i {
             margin-right: 10px;
+            min-width: 20px; /* Pastikan icon center saat collapsed */
+            text-align: center;
             transition: margin 0.3s ease;
         }
 
@@ -92,35 +112,54 @@
         }
 
         .sidebar-footer {
-            text-align: center;
-            font-size: 0.9em;
-            position: relative; /* biar bisa z-index */
-            z-index: 1100;
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            background-color: #0d6efd; /* Samakan warna agar seamless */
         }
 
         .sidebar-footer a {
-            color: #ffc107;
+            color: #ffc107; /* Warna kuning untuk logout agar mencolok */
             text-decoration: none;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .sidebar-footer a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .sidebar.collapsed .sidebar-footer a span {
+            display: none;
         }
 
         /* === TOGGLE BUTTON === */
         .toggle-btn {
             position: absolute;
-            top: 15px;
-            right: -15px;
+            top: 20px;
+            right: -15px; /* Keluar sedikit dari sidebar */
             background: white;
             color: #0d6efd;
-            border: none;
+            border: 1px solid #e0e0e0;
             cursor: pointer;
-            font-size: 18px;
-            padding: 6px 8px;
+            font-size: 14px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
+            z-index: 1001; /* Pastikan di atas konten */
+            transition: all 0.3s ease;
         }
 
         .toggle-btn:hover {
+            background-color: #f8f9fa;
             transform: scale(1.1);
         }
 
@@ -128,8 +167,11 @@
         .main-content {
             flex-grow: 1;
             padding: 25px;
-            overflow: auto;
-            transition: all 0.3s ease;
+            /* KUNCI 4: Scrollbar pindah ke sini */
+            height: 100%; 
+            overflow-y: auto; 
+            background-color: #f4f7f6;
+            position: relative;
         }
 
         .content-card {
@@ -144,9 +186,10 @@
 </head>
 <body>
     <div class="app-layout">
+        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                SIDAC
+                <span class="logo-text">SIDAC</span>
                 <button class="toggle-btn" id="toggle-btn">
                     <i class="fa fa-chevron-left"></i>
                 </button>
@@ -192,6 +235,7 @@
             </div>
         </aside>
 
+        <!-- Main Content -->
         <main class="main-content">
             @yield('content')
         </main>
@@ -202,19 +246,31 @@
         const toggleBtn = document.getElementById('toggle-btn');
         const icon = toggleBtn.querySelector('i');
 
+        // Cek local storage saat load halaman agar status sidebar tersimpan
+        const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+        if (isCollapsed) {
+            sidebar.classList.add('collapsed');
+            icon.classList.remove('fa-chevron-left');
+            icon.classList.add('fa-chevron-right');
+        }
+
         toggleBtn.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
             
-            // Ganti ikon sesuai status sidebar
+            // Ganti ikon
             if (sidebar.classList.contains('collapsed')) {
                 icon.classList.remove('fa-chevron-left');
                 icon.classList.add('fa-chevron-right');
+                localStorage.setItem('sidebar-collapsed', 'true');
             } else {
                 icon.classList.remove('fa-chevron-right');
                 icon.classList.add('fa-chevron-left');
+                localStorage.setItem('sidebar-collapsed', 'false');
             }
         });
     </script>
+
+    <!-- Notifikasi Flash Message -->
     @if(session('success'))
     <div 
         x-data="{ show: true }" 
@@ -225,6 +281,21 @@
     >
         <div class="flex items-center justify-between bg-green-500 text-white font-medium px-4 py-3 rounded-lg shadow-lg w-80">
             <span>{{ session('success') }}</span>
+            <button @click="show = false" class="text-white text-lg leading-none hover:text-gray-200">&times;</button>
+        </div>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div 
+        x-data="{ show: true }" 
+        x-show="show" 
+        x-transition.duration.300ms
+        x-init="setTimeout(() => show = false, 3000)" 
+        class="fixed top-5 right-5 z-[9999]"
+    >
+        <div class="flex items-center justify-between bg-red-500 text-white font-medium px-4 py-3 rounded-lg shadow-lg w-80">
+            <span>{{ session('error') }}</span>
             <button @click="show = false" class="text-white text-lg leading-none hover:text-gray-200">&times;</button>
         </div>
     </div>

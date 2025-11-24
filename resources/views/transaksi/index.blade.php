@@ -142,15 +142,8 @@
         </form>
     </div>
 
-    @if (session('success'))
-        <div class="alert-success">{{ session('success') }}</div>
-    @endif
-    
-    @if (session('success'))
-        <div style="color: green; margin-bottom: 15px; background: #e6f7ec; padding: 10px; border-radius: 6px;">
-            {{ session('success') }}
-        </div>
-    @endif
+    {{-- BAGIAN NOTIFIKASI DI SINI SUDAH SAYA HAPUS --}}
+    {{-- Karena sudah ditangani oleh Layout Utama (app.blade.php) --}}
 
     <table>
         <thead>
@@ -187,6 +180,4 @@
     <div class="d-flex justify-content-center mt-4">
         {{ $transaksis->links('pagination::bootstrap-5') }}
     </div>
-
-
 @endsection

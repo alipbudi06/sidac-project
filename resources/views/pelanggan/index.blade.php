@@ -36,11 +36,11 @@
         </div>
     </div>
     
-    @if (session('success'))
+    <!-- @if (session('success'))
         <div style="color: green; margin-bottom: 15px; background: #e6f7ec; padding: 10px; border-radius: 6px;">
             {{ session('success') }}
         </div>
-    @endif
+    @endif -->
 
     <table>
         <thead>

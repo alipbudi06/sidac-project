@@ -33,7 +33,7 @@
             margin-bottom: 20px;
         }
         .page-header h1 {
-            font-size: 2em; /* ukuran lebih besar */
+            font-size: 2em;
             margin: 0;
         }
         .btn-back {
@@ -58,12 +58,16 @@
         <div class="detail-box">
             <h3>Informasi Transaksi</h3>
             <p><strong>ID Transaksi:</strong> {{ $transaksi->ID_Transaksi }}</p>
-            <p><strong>Tanggal:</strong> {{ \Carbon\Carbon::parse($transaksi->Tanggal)->format('d M Y, H:i') }}</p>
+            {{-- Menggunakan Carbon untuk format tanggal --}}
+            <p><strong>Tanggal:</strong> {{ \Carbon\Carbon::parse($transaksi->Tanggal)->translatedFormat('d F Y') }}</p>
             <p><strong>Metode:</strong> {{ $transaksi->Metode_Pembayaran }}</p>
         </div>
         <div class="detail-box">
             <h3>Informasi Pihak</h3>
+            {{-- Mengambil Nama User dari relasi --}}
             <p><strong>Kasir:</strong> {{ $transaksi->user ? $transaksi->user->Nama_User : 'N/A' }}</p>
+            {{-- Mengambil Nama Pelanggan (jika ada) --}}
+            <p><strong>Pelanggan:</strong> {{ $transaksi->pelanggan ? $transaksi->pelanggan->Nama_Pelanggan : '-' }}</p>
         </div>
     </div>
 
@@ -80,7 +84,9 @@
             </tr>
         </thead>
         <tbody>
-            @forelse ($transaksi->detailTransaksi as $detail)
+            {{-- PERBAIKAN PENTING DI SINI: --}}
+            {{-- Ubah 'detailTransaksi' menjadi 'details' sesuai nama fungsi di Model Transaksi --}}
+            @forelse ($transaksi->details as $detail)
             <tr>
                 <td>{{ $detail->ID_Produk }}</td>
                 <td>{{ $detail->produk ? $detail->produk->Nama_Produk : 'Produk Dihapus' }}</td>
@@ -91,7 +97,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="6" style="text-align: center;">Tidak ada detail produk for transaksi ini.</td>
+                <td colspan="6" style="text-align: center;">Tidak ada detail produk untuk transaksi ini.</td>
             </tr>
             @endforelse
         </tbody>

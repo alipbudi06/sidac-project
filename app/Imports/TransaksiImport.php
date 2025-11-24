@@ -14,6 +14,7 @@ class TransaksiImport implements ToCollection, WithHeadingRow
 {
     protected $counter = null;
 
+    // Pastikan delimiter sesuai dengan CSV (Titik Koma)
     public function getCsvSettings(): array
     {
         return [
@@ -23,53 +24,56 @@ class TransaksiImport implements ToCollection, WithHeadingRow
 
     public function collection(Collection $rows)
     {
+        // 1. Ambil nomor urut terakhir dari DetailTransaksi agar ID tidak bentrok
         $lastDetail = DetailTransaksi::selectRaw("MAX(CAST(SUBSTR(ID_DetailTransaksi, 2) AS INTEGER)) as max_num")
             ->value('max_num');
         $this->counter = $lastDetail ? intval($lastDetail) : 0;
 
         Log::info("=== Mulai Import Transaksi ===");
 
-        Log::info("Last ID_DetailTransaksi", [
-            'last_detail' => $lastDetail,
-        ]);
-
         foreach ($rows as $index => $row) {
-
             try {
-                Log::info("Proses baris", [
-                    'index' => $index,
-                    'row_data' => $row->toArray()
-                ]);
-
+                // Lewati jika baris kosong (tidak ada ID Transaksi)
                 if (!$row['id_transaksi']) {
-                    Log::error("ID_Transaksi kosong", [
-                        'index' => $index,
-                        'row' => $row->toArray()
-                    ]);
                     continue;
                 }
 
+                // === LOGIKA PERBAIKAN TANGGAL ===
+                $tanggalRaw = $row['tanggal'];
+                $tanggalFix = null;
+
+                // Cek apakah tanggal menggunakan garis miring (contoh: 20/11/2025)
+                if (str_contains($tanggalRaw, '/')) {
+                    try {
+                        // Paksa baca format Indonesia (Hari/Bulan/Tahun)
+                        $tanggalFix = Carbon::createFromFormat('d/m/Y', $tanggalRaw);
+                    } catch (\Exception $e) {
+                        // Jika gagal, coba parsing standar
+                        $tanggalFix = Carbon::parse($tanggalRaw);
+                    }
+                } else {
+                    // Jika formatnya sudah standar (2025-11-20), langsung parse
+                    $tanggalFix = Carbon::parse($tanggalRaw);
+                }
+                // ================================
+
+                // 2. Simpan atau Cari Data Transaksi Utama
                 $transaksi = Transaksi::firstOrCreate(
                     ['ID_Transaksi' => $row['id_transaksi']],
                     [
-                        'Tanggal'           => Carbon::parse($row['tanggal']),
+                        'Tanggal'           => $tanggalFix, // Pakai tanggal yang sudah diperbaiki
                         'TotalHarga'        => $row['totalharga'],
                         'Metode_Pembayaran' => $row['metode_pembayaran'],
                         'ID_User'           => $row['id_user'],
+                        'ID_Pelanggan'      => $row['id_pelanggan'], // Pastikan kolom ini masuk
                     ]
                 );
 
-                Log::info("Transaksi Created / Found", [
-                    'ID_Transaksi' => $transaksi->ID_Transaksi
-                ]);
-
+                // 3. Generate ID Detail Transaksi Baru
                 $this->counter++;
                 $newDetailId = 'D' . str_pad($this->counter, 4, '0', STR_PAD_LEFT);
 
-                Log::info("Generated Detail ID", [
-                    'ID_DetailTransaksi' => $newDetailId
-                ]);
-
+                // 4. Simpan Detail Produknya
                 DetailTransaksi::create([
                     'ID_DetailTransaksi' => $newDetailId,
                     'ID_Transaksi'       => $transaksi->ID_Transaksi,
@@ -80,22 +84,11 @@ class TransaksiImport implements ToCollection, WithHeadingRow
                     'SubTotal'           => $row['subtotal'],
                 ]);
 
-                Log::info("Detail Created", [
-                    'ID_DetailTransaksi' => $newDetailId
-                ]);
             } catch (\Exception $e) {
-
-                Log::error("ERROR di baris", [
-                    'index' => $index,
-                    'row' => $row->toArray(),
-                    'message' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-
+                // Catat error ke log storage/logs/laravel.log jika gagal
+                Log::error("ERROR Import Baris $index: " . $e->getMessage());
                 throw $e;
             }
         }
-
-        Log::info("=== Import selesai tanpa error ===");
     }
 }
