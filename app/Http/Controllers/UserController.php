@@ -43,7 +43,7 @@ class UserController extends Controller
     {
         $lastUser = \App\Models\User::orderBy('ID_User', 'desc')->first();
         $num = $lastUser ? (int) substr($lastUser->ID_User, 1) : 0;
-        $prefix = $request->Role == 'Manajer Operasional' ? 'M' : 'P';
+        $prefix = $request->Role == 'Manajer Operasional' ? 'M' : 'K';
         $newId = $prefix . str_pad($num + 1, 3, '0', STR_PAD_LEFT);
 
         $validatedData = $request->validate([
