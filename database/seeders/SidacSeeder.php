@@ -29,8 +29,9 @@ class SidacSeeder extends Seeder
         DB::statement('PRAGMA foreign_keys = ON;');
 
         // 2. Buat User
-        $pegawai = User::create([ 'ID_User' => 'K001', 'Role' => 'Pegawai', 'Nama_User' => 'Kasir Pegawai', 'Username' => 'pegawai', 'Email_User' => 'pegawai@sidac.com', 'Password' => Hash::make('12345') ]);
-        $users = [$pegawai];
+        $manajer = User::create([ 'ID_User' => 'M001', 'Role' => 'Manajer Operasional', 'Nama_User' => 'Admin Manajer', 'Username' => 'manajer', 'Email_User' => 'manajer@gmail.com', 'Password' => Hash::make('12345') ]);
+        $pegawai = User::create([ 'ID_User' => 'K001', 'Role' => 'Pegawai', 'Nama_User' => 'Kasir Pegawai', 'Username' => 'pegawai', 'Email_User' => 'pegawai@gmail.com', 'Password' => Hash::make('12345') ]);
+        $users = [$manajer, $pegawai];
 
         // 3. Buat Produk
         $p1 = Produk::create(['ID_Produk' => 'F001', 'Nama_Produk' => 'Americano', 'Kategori' => 'Kopi', 'Harga' => 22000]);

@@ -111,14 +111,24 @@
             margin-right: 0;
         }
 
+        /* === PERBAIKAN DI SINI === */
         .sidebar-footer {
             padding: 20px;
             border-top: 1px solid rgba(255,255,255,0.1);
-            background-color: #0d6efd; /* Samakan warna agar seamless */
+            /* UBAH JADI TRANSPARAN & PAKSA */
+            background-color: transparent !important; 
+            box-shadow: none !important;
+        }
+
+        /* TAMBAHAN BARU: Hapus background pada form pembungkus */
+        .sidebar-footer form {
+            background-color: transparent !important;
+            margin: 0;
+            padding: 0;
         }
 
         .sidebar-footer a {
-            color: #ffc107; /* Warna kuning untuk logout agar mencolok */
+            color: #ffc107; /* Warna kuning */
             text-decoration: none;
             font-weight: bold;
             display: flex;
@@ -127,10 +137,13 @@
             transition: all 0.3s;
             padding: 10px;
             border-radius: 5px;
+            /* PASTIKAN LINK JUGA TRANSPARAN */
+            background-color: transparent !important; 
         }
 
         .sidebar-footer a:hover {
-            background-color: rgba(255,255,255,0.1);
+            /* Efek hover sedikit putih transparan */
+            background-color: rgba(255,255,255,0.1) !important; 
         }
 
         .sidebar.collapsed .sidebar-footer a span {
