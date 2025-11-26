@@ -65,7 +65,6 @@ class TransaksiImport implements ToCollection, WithHeadingRow
                         'TotalHarga'        => $row['totalharga'],
                         'Metode_Pembayaran' => $row['metode_pembayaran'],
                         'ID_User'           => $row['id_user'],
-                        'ID_Pelanggan'      => $row['id_pelanggan'], // Pastikan kolom ini masuk
                     ]
                 );
 
@@ -74,7 +73,7 @@ class TransaksiImport implements ToCollection, WithHeadingRow
                 $newDetailId = 'D' . str_pad($this->counter, 4, '0', STR_PAD_LEFT);
 
                 // 4. Simpan Detail Produknya
-                DetailTransaksi::create([
+                DetailTransaksi::updateOrCreate([
                     'ID_DetailTransaksi' => $newDetailId,
                     'ID_Transaksi'       => $transaksi->ID_Transaksi,
                     'ID_Produk'          => $row['id_produk'],
@@ -82,7 +81,9 @@ class TransaksiImport implements ToCollection, WithHeadingRow
                     'Diskon'             => $row['diskon'] ?? 0,
                     'Service_Charge'     => $row['service_charge'] ?? 0,
                     'SubTotal'           => $row['subtotal'],
-                ]);
+                    ]
+                );
+
 
             } catch (\Exception $e) {
                 // Catat error ke log storage/logs/laravel.log jika gagal

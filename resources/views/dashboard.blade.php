@@ -296,9 +296,9 @@
                 @csrf
                 <input type="hidden" name="chart_image" id="chart_image">
 
-                <input type="hidden" name="tgl_mulai" value="{{ request('tgl_mulai') }}">
-                <input type="hidden" name="tgl_selesai" value="{{ request('tgl_selesai') }}">
-                <input type="hidden" name="produk_id" value="{{ request('produk_id') }}">
+                <input type="hidden" name="tgl_mulai" value="{{ $tgl_mulai }}">
+                <input type="hidden" name="tgl_selesai" value="{{ $tgl_selesai }}">
+                <input type="hidden" name="produk_id" value="{{ $produk_filter }}">
 
                 <button type="submit" class="btn-export">
                     <i class="fa fa-file-pdf"></i> Ekspor PDF

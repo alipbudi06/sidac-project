@@ -65,8 +65,6 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-
-
         $queryGrafik = DB::table('transaksi as t')
             ->leftJoin('detail_transaksi as dt', 't.ID_Transaksi', '=', 'dt.ID_Transaksi')
             ->whereBetween(DB::raw('DATE(t.Tanggal)'), [$tgl_mulai, $tgl_selesai]);
@@ -126,25 +124,14 @@ class DashboardController extends Controller
             ->get();
     }
 
-    private function getTopPelanggan($tgl_mulai, $tgl_selesai)
+    private function getTopPelanggan()
     {
-        return DB::table('pelanggan as pl')
-            ->join('transaksi as t', 'pl.ID_Pelanggan', '=', 't.ID_Pelanggan')
-            ->where('pl.is_member', 1)
-            ->when($tgl_mulai, fn($q) => $q->whereDate('t.Tanggal', '>=', $tgl_mulai))
-            ->when($tgl_selesai, fn($q) => $q->whereDate('t.Tanggal', '<=', $tgl_selesai))
-            ->select(
-                'pl.ID_Pelanggan',
-                'pl.Nama_Pelanggan',
-                DB::raw('COUNT(DISTINCT t.ID_Transaksi) as total_pembelian')
-            )
-            ->groupBy('pl.ID_Pelanggan', 'pl.Nama_Pelanggan')
-            ->orderByDesc('total_pembelian')
+        return DB::table('pelanggan')
+            ->where('is_member', 1)
+            ->orderByDesc('Frekuensi_Pembelian')
             ->limit(5)
             ->get();
     }
-
-
 
     private function getGrafikTransaksi($tgl_mulai, $tgl_selesai, $produk_filter)
     {
@@ -181,7 +168,7 @@ class DashboardController extends Controller
 
     $statistik = $this->getStatisticData($tgl_mulai, $tgl_selesai, $produk_filter);
     $topProduk = $this->getTopProduk($tgl_mulai, $tgl_selesai, $produk_filter);
-    $topPelanggan = $this->getTopPelanggan($tgl_mulai, $tgl_selesai);
+    $topPelanggan = $this->getTopPelanggan();
     $grafikTransaksi = $this->getGrafikTransaksi($tgl_mulai, $tgl_selesai, $produk_filter);
 
     // SIMPAN FILE GRAFIK

@@ -110,7 +110,7 @@
         @forelse ($topPelanggan as $c)
             <tr>
                 <td>{{ $c->Nama_Pelanggan }}</td>
-                <td>{{ $c->total_pembelian }} pembelian</td>
+                <td>{{ $c->Frekuensi_Pembelian }} pembelian</td>
             </tr>
         @empty
             <tr>
