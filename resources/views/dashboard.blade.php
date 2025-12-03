@@ -4,284 +4,96 @@
 
 @section('content')
     <style>
-        /* CSS ini sekarang spesifik HANYA untuk konten dashboard.
-                                                       Layout utama (sidebar, dll) diatur oleh layouts.app
-                                                    */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        /* CSS KHUSUS DASHBOARD */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
-        .sub-header {
+        /* Header Styles */
+        .sub-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .sub-header .title { display: flex; align-items: center; gap: 10px; }
+        .sub-header .title .icon { background-color: #0d6efd; color: white; padding: 10px; border-radius: 8px; font-size: 1.2em; }
+        .sub-header h1 { margin: 0; font-size: 1.5em; }
+        .sub-header p { margin: 0; color: #555; }
+        .btn-export { background: linear-gradient(135deg, #e65c00, #ff9900); color: #fff; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; border: none; cursor: pointer; font-size: 0.9em; }
+
+        .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); margin-bottom: 20px; }
+
+        /* Filter Styles */
+        .filter-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; align-items: end; }
+        .filter-group { display: flex; flex-direction: column; position: relative; }
+        .filter-group label { font-size: 0.8em; color: #555; margin-bottom: 5px; }
+        .filter-group input, .filter-group select { padding: 8px 15px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; }
+        .filter-group .input-icon { position: absolute; right: 12px; bottom: 12px; color: #888; pointer-events: none; font-size: 0.8em; z-index: 2; }
+        
+        /* [PERBAIKAN] CSS Button Filter agar rapi */
+        .btn-filter { 
+            background: #0d6efd; 
+            color: #fff; 
+            border: none; 
+            padding: 10px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 0.9em; 
+            width: 100%;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            justify-content: center;
+            gap: 8px;
+            height: 38px; /* Tinggi fix agar sejajar input */
         }
-
-        .sub-header .title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .filter-buttons { 
+            display: flex; 
+            gap: 10px; 
+            /* margin-top dihapus agar sejajar dengan align-items: end grid */
         }
-
-        .sub-header .title .icon {
-            background-color: #0d6efd;
-            color: white;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 1.2em;
-        }
-
-        .sub-header h1 {
-            margin: 0;
-            font-size: 1.5em;
-        }
-
-        .sub-header p {
-            margin: 0;
-            color: #555;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9em;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
+        /* Memaksa kedua tombol berbagi lebar sama rata */
+        .filter-buttons .btn-filter, 
+        .filter-buttons a.btn-filter {
+            flex: 1; 
             text-decoration: none;
-            display: inline-block;
-            margin-left: 8px;
-        }
-
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-
-        .btn-export {
-            background: linear-gradient(135deg, #e65c00, #ff9900);
-            color: #fff;
-            padding: 10px 15px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9em;
-        }
-
-        .card {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-        }
-
-        .filter-card h2 {
-            margin-top: 0;
-            font-size: 1.1em;
-            margin-bottom: 15px;
-        }
-
-        .filter-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            /* 4 kolom sama besar */
-            gap: 20px;
-            align-items: end;
-            /* tombol sejajar bawah input */
-        }
-
-        .filter-group {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .filter-group label {
-            font-size: 0.8em;
-            color: #555;
-            margin-bottom: 5px;
-        }
-
-        .filter-group input,
-        .filter-group select {
-            appearance: none;
-            /* Hilangkan ikon bawaan browser */
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-color: #fff;
-            background-image: none;
-            padding: 8px 15px 8px 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 0.9em;
-            box-sizing: border-box;
-        }
-
-        .filter-group .input-icon {
-            position: absolute;
-            right: 12px;
-            /* geser sedikit dari kanan */
-            bottom: 12px;
-            /* sejajarkan dengan teks select */
-            color: #888;
-            pointer-events: none;
-            /* biar klik tetap tembus ke select */
-            font-size: 0.8em;
-            z-index: 2;
-        }
-
-        .btn-filter {
-            background: #0d6efd;
-            justify-content: space-between;
-            color: #fff;
-            border: none;
-            padding: 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9em;
-            width: 100%;
-        }
-
-        .btn-filter:hover {
-            background-color: #0a58ca !important;
-            color: white !important;
-        }
-
-        .filter-buttons {
-            display: flex;
-            justify-content: space-between;
-            /* tombol kiri-kanan */
-            align-items: center;
-            margin-top: 15px;
-        }
-
-        .filter-buttons .btn-filter {
-            flex: 1;
-            max-width: 200px;
-        }
-
-        .filter-buttons .btn-secondary {
-            flex: 1;
-            /* bagi ruang sama besar */
-            max-width: 220px;
-            /* biar gak kelebaran */
-            text-align: center;
-            padding: 10px 0;
-            /* tinggi konsisten */
-            font-weight: 600;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            border-radius: 8px;
             color: white;
         }
+        
+        /* Quick Filter Buttons */
+        .quick-actions { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .btn-quick { padding: 6px 15px; border: 1px solid #0d6efd; color: #0d6efd; border-radius: 20px; font-size: 0.85em; text-decoration: none; transition: all 0.3s; background: transparent; font-weight: 500; }
+        .btn-quick:hover, .btn-quick.active { background-color: #0d6efd; color: white; box-shadow: 0 2px 5px rgba(13, 110, 253, 0.3); }
 
-        .stat-card-blue {
-            background: linear-gradient(135deg, #0048b5, #007bff);
-            color: #fff;
-        }
+        /* Stats Grid (3 Kolom) */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; margin-bottom: 20px; }
+        .stat-card { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-radius: 8px; color: white; }
+        .stat-card-blue { background: linear-gradient(135deg, #0048b5, #007bff); }
+        .stat-card-orange { background: linear-gradient(135deg, #e65c00, #ff9900); }
+        .stat-card-green { background: linear-gradient(135deg, #198754, #20c997); }
+        .stat-card h3 { margin: 0; font-size: 1.1em; font-weight: 500; }
+        .stat-card p { margin: 5px 0 0 0; font-size: 1.5em; font-weight: bold; }
+        .stat-card .icon { font-size: 2em; opacity: 0.7; }
 
-        .stat-card-orange {
-            background: linear-gradient(135deg, #e65c00, #ff9900);
-            color: #fff;
-        }
+        /* [LAYOUT BARU] Charts Row (Grid 2 Kolom: Kiri Besar, Kanan Kecil) */
+        .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .chart-placeholder { width: 100%; height: 300px; } 
+        .donut-placeholder { width: 100%; height: 260px; display: flex; justify-content: center; align-items: center; }
 
-        .stat-card .icon {
-            font-size: 2em;
-            opacity: 0.7;
-        }
+        /* [LAYOUT BARU] Tables Row (Grid 3 Kolom Sejajar) */
+        .tables-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        
+        /* Table Styles */
+        .content-card h3 { margin-top: 0; font-size: 1.1em; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 15px; }
+        .content-card table { width: 100%; border-collapse: collapse; }
+        .content-card th, .content-card td { padding: 10px 5px; border-bottom: 1px solid #f0f0f0; font-size: 0.85em; }
+        .content-card th { text-align: left; color: #555; }
+        .content-card .amount { text-align: right; font-weight: bold; color: #198754; }
+        .content-card .empty-text { color: #888; font-style: italic; text-align: center; padding: 15px; }
 
-        .stat-card h3 {
-            margin: 0;
-            font-size: 1.1em;
-            font-weight: 500;
-        }
-
-        .stat-card p {
-            margin: 5px 0 0 0;
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-
-        .stat-card .empty-text {
-            font-size: 0.9em;
-            margin-top: 8px;
-        }
-
-        .chart-card .chart-placeholder {
-            width: 100%;
-            height: 250px;
-            border: 1px dashed #ccc;
-            display: grid;
-            place-items: center;
-            color: #aaa;
-            border-radius: 4px;
-        }
-
-        .top5-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .top5-card h3 {
-            margin-top: 0;
-            font-size: 1.2em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .top5-card .icon {
-            color: #fd7e14;
-        }
-
-        .top5-card table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .top5-card th,
-        .top5-card td {
-            padding: 8px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .top5-card th {
-            text-align: left;
-            color: #555;
-        }
-
-        .top5-card .empty-text {
-            color: #888;
-            font-style: italic;
+        /* Responsive */
+        @media (max-width: 1200px) { 
+            .charts-row { grid-template-columns: 1fr; }
+            .tables-row { grid-template-columns: 1fr; } 
+            .stats-grid { grid-template-columns: 1fr; }
+            .filter-grid { grid-template-columns: 1fr; } /* Responsif filter di layar kecil */
         }
     </style>
 
+    <!-- HEADER & EXPORT -->
     <section class="sub-header">
         <div class="title">
             <span class="icon"><i class="fa fa-chart-bar"></i></span>
@@ -295,215 +107,196 @@
             <form method="POST" action="{{ route('dashboard.export.pdf') }}" id="exportForm" target="_blank">
                 @csrf
                 <input type="hidden" name="chart_image" id="chart_image">
-
+                <input type="hidden" name="chart_produk_image" id="chart_produk_image">
                 <input type="hidden" name="tgl_mulai" value="{{ $tgl_mulai }}">
                 <input type="hidden" name="tgl_selesai" value="{{ $tgl_selesai }}">
                 <input type="hidden" name="produk_id" value="{{ $produk_filter }}">
-
-                <button type="submit" class="btn-export">
-                    <i class="fa fa-file-pdf"></i> Ekspor PDF
-                </button>
+                <button type="submit" class="btn-export"><i class="fa fa-file-pdf"></i> Ekspor PDF</button>
             </form>
         @endif
     </section>
 
+    <!-- FILTER SECTION -->
     <section class="filter-card card">
         <h2>Filter Dashboard</h2>
+        <div class="quick-actions">
+            <a href="{{ route('dashboard', ['tgl_mulai' => date('Y-m-d'), 'tgl_selesai' => date('Y-m-d')]) }}" class="btn-quick {{ request('tgl_mulai') == date('Y-m-d') ? 'active' : '' }}">Hari Ini</a>
+            <a href="{{ route('dashboard', ['tgl_mulai' => date('Y-m-d', strtotime('-6 days')), 'tgl_selesai' => date('Y-m-d')]) }}" class="btn-quick {{ request('tgl_mulai') == date('Y-m-d', strtotime('-6 days')) ? 'active' : '' }}">7 Hari Terakhir</a>
+            <a href="{{ route('dashboard', ['tgl_mulai' => date('Y-m-01'), 'tgl_selesai' => date('Y-m-t')]) }}" class="btn-quick {{ request('tgl_mulai') == date('Y-m-01') ? 'active' : '' }}">Bulan Ini</a>
+            <a href="{{ route('dashboard', ['tgl_mulai' => date('Y-m-01', strtotime('last month')), 'tgl_selesai' => date('Y-m-t', strtotime('last month'))]) }}" class="btn-quick {{ request('tgl_mulai') == date('Y-m-01', strtotime('last month')) ? 'active' : '' }}">Bulan Lalu</a>
+        </div>
         <form method="GET" action="{{ route('dashboard') }}">
             <div class="filter-grid">
+                <div class="filter-group"><label>Tanggal Mulai</label><input type="date" name="tgl_mulai" value="{{ request('tgl_mulai') }}"></div>
+                <div class="filter-group"><label>Tanggal Selesai</label><input type="date" name="tgl_selesai" value="{{ request('tgl_selesai') }}"></div>
                 <div class="filter-group">
-                    <label for="tgl_mulai">Tanggal Mulai</label>
-                    <input type="date" id="tgl_mulai" name="tgl_mulai" value="{{ request('tgl_mulai') }}">
-                </div>
-
-                <div class="filter-group">
-                    <label for="tgl_selesai">Tanggal Selesai</label>
-                    <input type="date" id="tgl_selesai" name="tgl_selesai" value="{{ request('tgl_selesai') }}">
-                </div>
-
-                <div class="filter-group">
-                    <label for="produk_id"><i class="fa fa-box"></i> Produk</label>
-                    <select name="produk_id" id="produk_id">
+                    <label>Produk</label>
+                    <select name="produk_id">
                         <option value="">Semua Produk</option>
                         @foreach ($produks_list as $produk)
-                            <option value="{{ $produk->ID_Produk }}"
-                                {{ ($produk_filter ?? '') == $produk->ID_Produk ? 'selected' : '' }}>
-                                {{ $produk->Nama_Produk }}
-                            </option>
+                            <option value="{{ $produk->ID_Produk }}" {{ ($produk_filter ?? '') == $produk->ID_Produk ? 'selected' : '' }}>{{ $produk->Nama_Produk }}</option>
                         @endforeach
                     </select>
                     <i class="fa fa-chevron-down input-icon"></i>
                 </div>
                 <div class="filter-buttons">
-                    <button type="submit" class="btn-filter">
-                        <i class="fa fa-search"></i> Terapkan
-                    </button>
-                    <a href="{{ route('dashboard') }}" class="btn btn-secondary">
-                        <i class="fa fa-undo"></i> Reset
-                    </a>
+                    <button type="submit" class="btn-filter"><i class="fa fa-search"></i> Terapkan</button>
+                    <a href="{{ route('dashboard') }}" class="btn-filter" style="background:#6c757d !important;"><i class="fa fa-undo"></i> Reset</a>
                 </div>
             </div>
         </form>
     </section>
 
-
+    <!-- STATISTIK CARDS -->
     <section class="stats-grid">
         <div class="stat-card stat-card-blue">
-            <div>
-                <h3>Total Transaksi</h3>
-                @if (isset($statistik->total_transaksi) && $statistik->total_transaksi > 0)
-                    <p>{{ $statistik->total_transaksi }}</p>
-                @else
-                    <p class="empty-text">Belum ada transaksi pada periode ini</p>
-                @endif
-            </div>
-            <div class="icon">
-                <i class="fa fa-shopping-cart"></i>
-            </div>
+            <div><h3>Total Transaksi</h3><p>{{ number_format($statistik->total_transaksi ?? 0) }}</p></div><div class="icon"><i class="fa fa-shopping-cart"></i></div>
         </div>
         <div class="stat-card stat-card-orange">
-            <div>
-                <h3>Total Pendapatan</h3>
-                @if (isset($statistik->total_pendapatan) && $statistik->total_pendapatan > 0)
-                    <p>Rp {{ number_format($statistik->total_pendapatan, 0, ',', '.') }}</p>
+            <div><h3>Total Pendapatan</h3><p>Rp {{ number_format($statistik->total_pendapatan ?? 0, 0, ',', '.') }}</p></div><div class="icon"><i class="fa fa-dollar-sign"></i></div>
+        </div>
+        <div class="stat-card stat-card-green">
+            <div><h3>Rata-rata Order</h3><p>Rp {{ number_format(($statistik->total_transaksi > 0) ? ($statistik->total_pendapatan / $statistik->total_transaksi) : 0, 0, ',', '.') }}</p></div><div class="icon"><i class="fa fa-chart-pie"></i></div>
+        </div>
+    </section>
+
+    <!-- CHARTS ROW (2 Grafik Sejajar) -->
+    <section class="charts-row">
+        <!-- 1. Grafik Tren (Kiri) -->
+        <div class="card chart-card">
+            <h3 style="margin-top:0; font-size:1.2em; border-bottom:1px solid #eee; padding-bottom:10px;">
+                <i class="fa fa-chart-area" style="color:#0d6efd; margin-right:8px;"></i> Tren Pendapatan
+            </h3>
+            <div class="chart-placeholder">
+                <canvas id="chartTransaksi"></canvas>
+            </div>
+        </div>
+
+        <!-- 2. Grafik Donut Menu (Kanan) -->
+        <div class="card content-card">
+            <h3><i class="fa fa-utensils" style="color:#dc3545;"></i> 5 Menu Terlaris</h3>
+            <div class="donut-placeholder">
+                @if(isset($chartProdukLabel) && count($chartProdukLabel) > 0)
+                    <canvas id="chartProduk"></canvas>
                 @else
-                    <p class="empty-text">Belum ada transaksi pada periode ini</p>
+                    <p class="empty-text">Belum ada data penjualan</p>
                 @endif
             </div>
-            <div class="icon">
-                <i class="fa fa-dollar-sign"></i>
-            </div>
         </div>
     </section>
 
-    <section class="card chart-card">
-        <!-- <h3>Grafik Pendapatan</h3> -->
-        <div class="chart-placeholder">
-            <canvas id="chartTransaksi"></canvas>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-            <script>
-                const grafikData = {!! $grafikTransaksi_json !!};
-                const labels = grafikData.map(item => item.tanggal);
-                const values = grafikData.map(item => item.total_transaksi);
-
-                new Chart(document.getElementById('chartTransaksi'), {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Jumlah Transaksi',
-                            data: values,
-                            borderColor: '#3b82f6',
-                            borderWidth: 2,
-                            tension: 0.3,
-                            fill: false,
-                            pointRadius: 4,
-                            pointHoverRadius: 6
-                        }]
-                    },
-                    options: {
-                        animation: {
-                            onComplete: () => {
-                                const canv = document.getElementById("chartTransaksi");
-
-                                const imgData = canv.toDataURL("image/png");
-                                console.log("imgData", imgData)
-
-                                let hidden = document.getElementById("chart_image");
-                                if (!hidden) {
-                                    hidden = document.createElement("input");
-                                    hidden.type = "hidden";
-                                    hidden.name = "chart_image";
-                                    hidden.id = "chart_image";
-                                    document.body.appendChild(hidden);
-                                }
-
-                                hidden.value = imgData;
-                            }
-                        },
-                        responsive: true,
-                        maintainAspectRatio: false,
-
-                        layout: {
-                            padding: 10
-                        },
-
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grace: '5%',
-                            },
-
-                            x: {
-                                ticks: {
-                                    maxRotation: 0,
-                                    autoSkip: true
-                                }
-                            }
-                        }
-                    }
-                });
-            </script>
-        </div>
-    </section>
-
-    <section class="top5-grid">
-        <div class="card top5-card">
-            <h3><i class="fa fa-star icon"></i> Top 5 Produk Terlaris</h3>
+    <!-- TABLES ROW (3 Tabel Sejajar) -->
+    <section class="tables-row">
+        
+        <!-- Tabel 1: Transaksi Terbaru -->
+        <div class="card content-card">
+            <h3><i class="fa fa-history" style="color:#ffc107;"></i> Transaksi Terbaru</h3>
             <table>
+                <thead><tr><th>ID</th><th>Kasir</th><th style="text-align:right;">Total</th></tr></thead>
                 <tbody>
-                    @forelse ($topProduk as $produk)
-                        <tr>
-                            <td>{{ $produk->Nama_Produk }}</td>
-                            <td><strong>{{ $produk->total_terjual }}</strong> terjual</td>
-                        </tr>
+                    @forelse($transaksiTerbaru as $trx)
+                    <tr>
+                        <td style="color:#777;">#{{ substr($trx->ID_Transaksi, -4) }}</td>
+                        <td>{{ $trx->Nama_Kasir ?? 'Kasir' }}</td>
+                        <td class="amount">Rp {{ number_format($trx->TotalHarga, 0, ',', '.') }}</td>
+                    </tr>
                     @empty
-                        <tr>
-                            <td colspan="2" class="empty-text">Belum ada produk terjual pada periode ini</td>
-                        </tr>
+                    <tr><td colspan="3" class="empty-text">Belum ada transaksi</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
 
-        <div class="card top5-card">
-            <h3><i class="fa fa-gem icon"></i> Top 5 Member Loyalitas</h3>
+        <!-- Tabel 2: Top Member -->
+        <div class="card content-card">
+            <h3><i class="fa fa-gem icon"></i> Top 5 Member</h3>
             <table>
                 <tbody>
                     @forelse ($topPelanggan as $pelanggan)
-                        <tr>
-                            <td>
-                                <a href="{{ route('pelanggan.edit', $pelanggan->ID_Pelanggan) }}">
-                                    {{ $pelanggan->Nama_Pelanggan }}
-                                </a>
-                            </td>
-                            <td><strong>{{ $pelanggan->Frekuensi_Pembelian }}</strong> pembelian</td>
-                        </tr>
+                    <tr>
+                        <td><a href="{{ route('pelanggan.edit', $pelanggan->ID_Pelanggan) }}" style="text-decoration:none; color:#333;">{{ $pelanggan->Nama_Pelanggan }}</a></td>
+                        <td style="text-align:right;"><strong>{{ $pelanggan->Frekuensi_Pembelian }}</strong> x</td>
+                    </tr>
                     @empty
-                        <tr>
-                            <td colspan="2" class="empty-text">Belum ada data member pada periode ini</td>
-                        </tr>
+                    <tr><td colspan="2" class="empty-text">Belum ada member</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+
+        <!-- Tabel 3: Metode Pembayaran (PENGGANTI KASIR) -->
+        <div class="card content-card">
+            <h3><i class="fa fa-wallet" style="color:#20c997;"></i> Metode Bayar</h3>
+            <table>
+                <tbody>
+                    @if(isset($topMetode) && count($topMetode) > 0)
+                        @foreach ($topMetode as $item)
+                        <tr>
+                            <td>{{ $item->Metode_Pembayaran }}</td>
+                            <td style="text-align:right;"><strong>{{ $item->total_usage }}</strong> Trx</td>
+                        </tr>
+                        @endforeach
+                    @else
+                        <tr><td colspan="2" class="empty-text">Belum ada data</td></tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
+
     </section>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // --- 1. LINE CHART ---
+        const grafikData = {!! $grafikTransaksi_json !!};
+        const ctxLine = document.getElementById('chartTransaksi');
+        new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: grafikData.map(d => d.tanggal),
+                datasets: [{
+                    label: 'Jumlah Transaksi',
+                    data: grafikData.map(d => d.total_transaksi),
+                    borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 2, tension: 0.3, fill: true, pointRadius: 4
+                }]
+            },
+            options: {
+                animation: { onComplete: () => { document.getElementById("chart_image").value = ctxLine.toDataURL("image/png"); } },
+                responsive: true, maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } }, x: { ticks:{ autoSkip:true } } }
+            }
+        });
+
+        // --- 2. DONUT CHART ---
+        @if(isset($chartProdukLabel) && count($chartProdukLabel) > 0)
+            const ctxProduk = document.getElementById('chartProduk');
+            new Chart(ctxProduk, {
+                type: 'doughnut',
+                data: {
+                    labels: {!! json_encode($chartProdukLabel) !!},
+                    datasets: [{
+                        data: {!! json_encode($chartProdukData) !!},
+                        backgroundColor: ['#0d6efd', '#ffc107', '#198754', '#dc3545', '#6c757d', '#0dcaf0'],
+                        borderWidth: 2, borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } },
+                    cutout: '60%'
+                }
+            });
+        @endif
+
+        // --- 3. EXPORT HANDLER ---
         document.addEventListener("DOMContentLoaded", () => {
             const exportForm = document.getElementById("exportForm");
-            if (!exportForm) return;
-
-            exportForm.addEventListener("submit", function(e) {
-                const canv = document.getElementById("chartTransaksi");
-                if (!canv) return;
-
-                const imgData = canv.toDataURL("image/png");
-                document.getElementById("chart_image").value = imgData;
-                console.log("Base64 ready:", imgData.substring(0, 30));
-            });
+            if (exportForm) {
+                exportForm.addEventListener("submit", function() {
+                    if(document.getElementById("chartTransaksi")) document.getElementById("chart_image").value = document.getElementById("chartTransaksi").toDataURL("image/png");
+                    if(document.getElementById("chartProduk")) document.getElementById("chart_produk_image").value = document.getElementById("chartProduk").toDataURL("image/png");
+                });
+            }
         });
     </script>
-
 @endsection
