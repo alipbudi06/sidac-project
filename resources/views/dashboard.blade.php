@@ -54,7 +54,7 @@
         }
         
         /* Quick Filter Buttons */
-        .quick-actions { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .quick-actions { display: flex; gap: 10px; margin-bottom: 15px; margin-top: 15px; flex-wrap: wrap; }
         .btn-quick { padding: 6px 15px; border: 1px solid #0d6efd; color: #0d6efd; border-radius: 20px; font-size: 0.85em; text-decoration: none; transition: all 0.3s; background: transparent; font-weight: 500; }
         .btn-quick:hover, .btn-quick.active { background-color: #0d6efd; color: white; box-shadow: 0 2px 5px rgba(13, 110, 253, 0.3); }
 
@@ -165,7 +165,7 @@
         <!-- 1. Grafik Tren (Kiri) -->
         <div class="card chart-card">
             <h3 style="margin-top:0; font-size:1.2em; border-bottom:1px solid #eee; padding-bottom:10px;">
-                <i class="fa fa-chart-area" style="color:#0d6efd; margin-right:8px;"></i> Tren Pendapatan
+                <i class="fa fa-chart-area" style="color:#0d6efd; margin-right:8px;"></i> Tren jumlah transaksi
             </h3>
             <div class="chart-placeholder">
                 <canvas id="chartTransaksi"></canvas>
@@ -188,7 +188,7 @@
     <!-- TABLES ROW (3 Tabel Sejajar) -->
     <section class="tables-row">
         
-        <!-- Tabel 1: Transaksi Terbaru -->
+        <!-- Tabel 1: Transaksi Terbaru
         <div class="card content-card">
             <h3><i class="fa fa-history" style="color:#ffc107;"></i> Transaksi Terbaru</h3>
             <table>
@@ -197,6 +197,40 @@
                     @forelse($transaksiTerbaru as $trx)
                     <tr>
                         <td style="color:#777;">#{{ substr($trx->ID_Transaksi, -4) }}</td>
+                        <td>{{ $trx->Nama_Kasir ?? 'Kasir' }}</td>
+                        <td class="amount">Rp {{ number_format($trx->TotalHarga, 0, ',', '.') }}</td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="3" class="empty-text">Belum ada transaksi</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div> -->
+
+        <!-- KOLOM 2: Tabel Transaksi Terbaru -->
+        <div class="card content-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px;">
+                <h3 style="margin: 0; border: none; padding: 0;"><i class="fa fa-history" style="color:#ffc107;"></i> Transaksi Terbaru</h3>
+                
+                <!-- TOMBOL VIEW ALL (Mengirim filter tanggal ke halaman transaksi) -->
+                <a href="{{ route('transaksi.index', ['tgl_mulai' => $tgl_mulai, 'tgl_selesai' => $tgl_selesai]) }}" 
+                   style="font-size: 0.85em; text-decoration: none; color: #0d6efd; font-weight: 600;">
+                    Lihat Semua <i class="fa fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Kasir</th> 
+                        <th style="text-align:right;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($transaksiTerbaru as $trx)
+                    <tr>
+                        <td style="color:#777; font-size:0.85em;">#{{ substr($trx->ID_Transaksi, -4) }}</td>
                         <td>{{ $trx->Nama_Kasir ?? 'Kasir' }}</td>
                         <td class="amount">Rp {{ number_format($trx->TotalHarga, 0, ',', '.') }}</td>
                     </tr>
