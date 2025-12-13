@@ -286,58 +286,104 @@
 
     </section>
 
+    <div 
+        id="grafik-data"
+        data-grafik='@json($grafikTransaksi)'>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // --- 1. LINE CHART ---
-        const grafikData = {!! $grafikTransaksi_json !!};
+    // ===============================
+    // 1. LINE CHART
+    // ===============================
+        const grafikData = JSON.parse(
+            document.getElementById('grafik-data').dataset.grafik
+        );
         const ctxLine = document.getElementById('chartTransaksi');
-        new Chart(ctxLine, {
-            type: 'line',
-            data: {
-                labels: grafikData.map(d => d.tanggal),
-                datasets: [{
-                    label: 'Jumlah Transaksi',
-                    data: grafikData.map(d => d.total_transaksi),
-                    borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 2, tension: 0.3, fill: true, pointRadius: 4
-                }]
-            },
-            options: {
-                animation: { onComplete: () => { document.getElementById("chart_image").value = ctxLine.toDataURL("image/png"); } },
-                responsive: true, maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } }, x: { ticks:{ autoSkip:true } } }
-            }
-        });
 
-        // --- 2. DONUT CHART ---
-        @if(isset($chartProdukLabel) && count($chartProdukLabel) > 0)
-            const ctxProduk = document.getElementById('chartProduk');
-            new Chart(ctxProduk, {
-                type: 'doughnut',
+        if (ctxLine && grafikData.length > 0) {
+            new Chart(ctxLine, {
+                type: 'line',
                 data: {
-                    labels: {!! json_encode($chartProdukLabel) !!},
+                    labels: grafikData.map(d => d.tanggal),
                     datasets: [{
-                        data: {!! json_encode($chartProdukData) !!},
-                        backgroundColor: ['#0d6efd', '#ffc107', '#198754', '#dc3545', '#6c757d', '#0dcaf0'],
-                        borderWidth: 2, borderColor: '#ffffff'
+                        label: 'Jumlah Transaksi',
+                        data: grafikData.map(d => d.total_transaksi),
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true,
+                        pointRadius: 4
                     }]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true },
+                        x: { }
+                    }
+                }
+            });
+        }
+
+        // ===============================
+        // 2. DONUT CHART PRODUK
+        // ===============================
+        const chartProdukLabel = JSON.parse('{!! json_encode($chartProdukLabel ?? []) !!}');
+        const chartProdukData  = JSON.parse('{!! json_encode($chartProdukData ?? []) !!}');
+
+        const ctxProduk = document.getElementById('chartProduk');
+
+        if (ctxProduk && chartProdukLabel.length > 0) {
+            new Chart(ctxProduk, {
+                type: 'doughnut',
+                data: {
+                    labels: chartProdukLabel,
+                    datasets: [{
+                        data: chartProdukData,
+                        backgroundColor: [
+                            '#0d6efd', '#ffc107', '#198754',
+                            '#dc3545', '#6c757d', '#0dcaf0'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 10, font: { size: 9 } }
+                        }
+                    },
                     cutout: '60%'
                 }
             });
-        @endif
+        }
 
-        // --- 3. EXPORT HANDLER ---
+        // ===============================
+        // 3. EXPORT PDF HANDLER
+        // ===============================
         document.addEventListener("DOMContentLoaded", () => {
             const exportForm = document.getElementById("exportForm");
+
             if (exportForm) {
-                exportForm.addEventListener("submit", function() {
-                    if(document.getElementById("chartTransaksi")) document.getElementById("chart_image").value = document.getElementById("chartTransaksi").toDataURL("image/png");
-                    if(document.getElementById("chartProduk")) document.getElementById("chart_produk_image").value = document.getElementById("chartProduk").toDataURL("image/png");
+                exportForm.addEventListener("submit", () => {
+                    if (ctxLine) {
+                        document.getElementById("chart_image").value =
+                            ctxLine.toDataURL("image/png");
+                    }
+
+                    if (ctxProduk) {
+                        document.getElementById("chart_produk_image").value =
+                            ctxProduk.toDataURL("image/png");
+                    }
                 });
             }
         });
     </script>
+
 @endsection

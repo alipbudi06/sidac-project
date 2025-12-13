@@ -49,7 +49,7 @@ class DashboardController extends Controller
             'topPelanggan'  => $topPelanggan,
             'topMetode'     => $topMetode, // Kirim data Metode Pembayaran
             'transaksiTerbaru' => $transaksiTerbaru,
-            'grafikTransaksi_json' => $grafikTransaksi->toJson(),
+            'grafikTransaksi' => $grafikTransaksi,
             'chartProdukLabel' => $chartProdukLabel, 
             'chartProdukData'  => $chartProdukData,  
             'produks_list'  => $produks_list,
