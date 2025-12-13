@@ -20,14 +20,63 @@
         .filter-form { margin-top: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
         .filter-form input[type="text"] { width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
         .btn-filter { background-color: #0d6efd; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; }
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .search-wrapper input {
+            width: 100%;
+            padding: 10px 38px 10px 35px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .search-wrapper input:focus {
+            border-color: #0d6efd;
+            outline: none;
+            box-shadow: 0 0 5px rgba(13, 110, 253, 0.2);
+        }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            font-size: 14px;
+        }
+        .clear-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            font-size: 16px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .clear-btn:hover {
+            color: #000;
+        }
     </style>
     
     <div class="header-controls">
         <h1>Data Pelanggan</h1>
         <!-- Filter -->
         <form method="GET" action="{{ route('pelanggan.index') }}" class="search-bar">
-            <input type="text" name="search" placeholder="Cari nama pelanggan..." 
-                   value="{{ $search ?? '' }}">
+            <div class="search-wrapper">
+                <i class="fa fa-search search-icon"></i>
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Cari ID, nama, atau email pelanggan..." 
+                    value="{{ request('search') }}"
+                >
+                @if (request()->has('search') && request('search') !== '')
+                    <a href="{{ route('pelanggan.index') }}" class="clear-btn">&times;</a>
+                @endif
+            </div>
         </form>
         <div class="button-group">
             <a href="{{ route('pelanggan.import.form') }}" class="btn btn-import">
@@ -35,13 +84,6 @@
             </a>
         </div>
     </div>
-    
-    <!-- @if (session('success'))
-        <div style="color: green; margin-bottom: 15px; background: #e6f7ec; padding: 10px; border-radius: 6px;">
-            {{ session('success') }}
-        </div>
-    @endif -->
-
     <table>
         <thead>
             <tr>

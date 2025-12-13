@@ -58,6 +58,13 @@
         .btn-quick { padding: 6px 15px; border: 1px solid #0d6efd; color: #0d6efd; border-radius: 20px; font-size: 0.85em; text-decoration: none; transition: all 0.3s; background: transparent; font-weight: 500; }
         .btn-quick:hover, .btn-quick.active { background-color: #0d6efd; color: white; box-shadow: 0 2px 5px rgba(13, 110, 253, 0.3); }
 
+        .filter-group select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: none;
+        }
+
         /* Stats Grid (3 Kolom) */
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; margin-bottom: 20px; }
         .stat-card { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-radius: 8px; color: white; }
