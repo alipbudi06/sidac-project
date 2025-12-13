@@ -93,6 +93,18 @@
         align-items: center;
         gap: 10px;
     }
+    .btn-reset {
+        background-color: #6c757d; /* abu bootstrap */
+        color: white;
+        font-weight: 600;
+        transition: background 0.3s;
+    }
+
+    .btn-reset:hover {
+        background-color: #5c636a !important;
+        color: white !important;
+    }
+
         
     </style>
     
@@ -136,7 +148,9 @@
                     <i class="fa fa-search"></i> Terapkan Filter
                 </button>
                 @if(isset($tgl_mulai) || isset($tgl_selesai) || isset($produk_filter))
-                    <a href="{{ route('transaksi.index') }}" style="font-size: 0.9em;">Reset Filter</a>
+                    <a href="{{ route('transaksi.index') }}" class="btn btn-reset">
+                        <i class="fa fa-rotate-left"></i> Reset Filter
+                    </a>
                 @endif
             </div>
         </form>
